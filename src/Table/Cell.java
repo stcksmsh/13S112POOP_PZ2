@@ -1,6 +1,6 @@
 package Table;
 
-import java.awt.*;
+import java.awt.Label;
 
 public class Cell extends Label {
     CellIdentifier id;
@@ -12,8 +12,7 @@ public class Cell extends Label {
         id = new CellIdentifier(column, row);
         value = new CellValue();
         format = new Format();
-    }
-
-    public static void main(String[] args) {
+        setAlignment(CENTER);
+        setText("tuvwxyz");
     }
 }
