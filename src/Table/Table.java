@@ -54,10 +54,8 @@ public class Table extends Frame implements KeyListener {
             }
         });
 
-        addSheet("TEST");
-        changeSheet(0);
         add(sheetBar, BorderLayout.SOUTH);
-
+        sheetBar.setVisible(true);
     }
 
     private void changeSheet(int index) {
