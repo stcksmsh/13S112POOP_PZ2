@@ -2,28 +2,30 @@ package Table;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.Label;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+
+import javax.swing.border.Border;
 
 public class Table extends Frame implements KeyListener {
 
     private ArrayList<Sheet> sheets;
-    private int currentSheetIndex;
     Sheet currentSheet;
 
     private InputField inputField;
+    private SheetBar sheetBar;
 
     public Table() {
         setLayout(new BorderLayout());
 
         sheets = new ArrayList<Sheet>();
         sheets.add(new Sheet());
-        currentSheetIndex = 0;
-        currentSheet = sheets.get(currentSheetIndex);
-        currentSheet.addKeyListener(this);
-        add(currentSheet, BorderLayout.CENTER);
+        currentSheet = null;
 
         inputField = new InputField();
         inputField.addKeyListener(new KeyAdapter() {
@@ -36,6 +38,50 @@ public class Table extends Frame implements KeyListener {
             }
         });
         add(inputField, BorderLayout.NORTH);
+        sheetBar = new SheetBar(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getSource() instanceof Label) {
+                    int index = sheetBar.getIndex((Label) e.getSource());
+                    if (index >= 0) {
+                        changeSheet(index);
+                    } else {
+                        addSheet("TEST");
+                    }
+                } else {
+                    System.err.println("ERROR, SOURCE IS NOT A LABEL");
+                }
+            }
+        });
+
+        addSheet("TEST");
+        changeSheet(0);
+        add(sheetBar, BorderLayout.SOUTH);
+
+    }
+
+    private void changeSheet(int index) {
+        if (currentSheet != null)
+            remove(currentSheet);
+        currentSheet = sheets.get(index);
+        add(currentSheet, BorderLayout.CENTER);
+        currentSheet.addKeyListener(this);
+        revalidate();
+        currentSheet.init();
+    }
+
+    private void addSheet(String text) {
+        if (currentSheet != null) {
+            remove(currentSheet);
+        }
+        sheetBar.addSheet(text);
+        currentSheet = new Sheet();
+        sheets.add(currentSheet);
+        currentSheet.addKeyListener(this);
+        add(currentSheet, BorderLayout.CENTER);
+        currentSheet.requestFocus();
+        revalidate();
+        currentSheet.init();
 
     }
 
