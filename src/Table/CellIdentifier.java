@@ -1,8 +1,8 @@
 package Table;
 
 public class CellIdentifier {
-    private String column;/// columns represented by A, B, ..., Z, AA, AB, ..., AZ, BA
-    private int row;
+    private final String column;/// columns represented by A, B, ..., Z, AA, AB, ..., AZ, BA
+    private final int row;
 
     public CellIdentifier(String column, int row) {
         this.column = column;
@@ -35,7 +35,7 @@ public class CellIdentifier {
     }/// A - 1, B - 2, ..., Z - 26, AA - 27, AB - 28,... AZ - 52, BA - 53, ...
 
     static public String columnNumberToString(int column) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("");
         while (column > 0) {
             column--;
             char c = (char) ('A' + column % 26);
@@ -47,12 +47,15 @@ public class CellIdentifier {
 
     @Override
     public boolean equals(Object obj) {
-        return hashCode() == obj.hashCode();
+        if (!(obj instanceof CellIdentifier))
+            return false;
+        CellIdentifier cid = (CellIdentifier) obj;
+        return column.equals(cid.column) && row == cid.row;
     }
 
     @Override
     public int hashCode() {
-        return columnStringToNumber(column) * (2 << 16) + row; /// high 2 bytes are
+        return (columnStringToNumber(column) << 16) | row; /// high 2 bytes are
         // for the column, and low 2 for row
         /*
          * this hashFunction enables up to 64k by 64k sheets
@@ -61,5 +64,12 @@ public class CellIdentifier {
          * cells
          * will slow down
          */
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(column);
+        sb.append(row);
+        return sb.toString();
     }
 }

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Label;
 
 public class Cell extends Label {
-    CellIdentifier id;
+    private final CellIdentifier id;
     private CellValue value;
     private Format format;
 
@@ -14,9 +14,22 @@ public class Cell extends Label {
         value = new CellValue();
         format = new Format();
         setAlignment(CENTER);
-        setBackground(Color.WHITE);
-        StringBuilder sb = new StringBuilder(id.getColumn());
-        sb.append(id.getRow());
+        setBackground(Color.DARK_GRAY);
+        setForeground(Color.WHITE);
+        setAlignment(CENTER);
+        StringBuilder sb = new StringBuilder(""); /// id.getColumn()
+        if (id.getColumnNumber() == 0) {
+            if (id.getRow() == 0) {
+                sb.append("*");
+            } else {
+                sb.append(id.getRow());
+            }
+        } else if (id.getRow() == 0) {
+            sb.append(id.getColumn());
+        } else {
+            setForeground(Color.BLACK);
+            setBackground(Color.WHITE);
+        }
         setText(sb.toString()); /// 5 blank spaces is default
     }
 

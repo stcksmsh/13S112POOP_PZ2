@@ -2,7 +2,7 @@ SRCDIR = src
 BINDIR = bin
 SRC = $(wildcard $(SRCDIR)/**/*.java)
 BIN = $(patsubst $(SRCDIR)/%.java, $(BINDIR)/%.class, $(SRC))
-PROGRAM = Table.Sheet
+PROGRAM = Table.Table
 
 all : $(BIN)
 	(cd $(BINDIR) && java $(PROGRAM))
