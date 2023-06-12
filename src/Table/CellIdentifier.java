@@ -47,20 +47,18 @@ public class CellIdentifier {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CellIdentifier) {
-            CellIdentifier cell = (CellIdentifier) obj;
-            return column.equals(cell.column) && row == cell.row;
-        }
-        return false;
+        return hashCode() == obj.hashCode();
     }
 
     @Override
     public int hashCode() {
-        return columnStringToNumber(column) * (2 << 16) + row; /// high 2 bytes are for the column, and low 2 for row
+        return columnStringToNumber(column) * (2 << 16) + row; /// high 2 bytes are
+        // for the column, and low 2 for row
         /*
          * this hashFunction enables up to 64k by 64k sheets
          * last "usable" column is 'CRXP' and last row is 65535
-         * the ones after will "work" but the hash map responsible for keeping the cells
+         * the ones after will "work" but the hash map responsible for keeping the
+         * cells
          * will slow down
          */
     }

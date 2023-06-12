@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.lang.ProcessBuilder.Redirect;
 
 import javax.swing.*;
 import javax.swing.SpringLayout.Constraints;
@@ -15,19 +16,22 @@ import java.util.HashMap;
 
 public class Sheet extends JPanel implements MouseListener, MouseWheelListener, KeyListener {
 
-    private static int border = 1; /// size of border between adjacent cells
+    private static int border = 3; /// size of border between adjacent cells
 
-    private HashMap<CellIdentifier, Cell> cells = new HashMap<CellIdentifier, Cell>(); /// the HashMap containing all of
-                                                                                       /// the cells
-    private Cell foucsedCell; /// the cell currently being focused
+    /// the HashMap containing all of the cells
+    private HashMap<CellIdentifier, Cell> cells = new HashMap<CellIdentifier, Cell>();
+
+    private Cell focusedCell; /// the cell currently being focused
     private Cell topLeftCell; /// the cell in the top left corner of the sheet
+    private Cell bottomRightCell; /// the fully visible cell in the bottom right corner of the sheet
 
     public Sheet() {
         super();
         createCell(1, 1);
-        foucsedCell = cells.get(new CellIdentifier("A", 1));
-        topLeftCell = foucsedCell;
-        foucsedCell.setBackground(Color.GRAY);
+        focusedCell = cells.get(new CellIdentifier("A", 1));
+        topLeftCell = focusedCell;
+        bottomRightCell = topLeftCell;
+        focusedCell.setBackground(Color.GRAY);
         setBackground(Color.black);
         setLayout(new SpringLayout());
         setOpaque(true);
@@ -35,7 +39,7 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
 
     public void init() {
         makeSheet();
-        changeFocus(foucsedCell);
+        changeFocus(focusedCell);
     }
 
     private Cell createCell(int column, int row) {
@@ -51,13 +55,12 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
         removeAll(); /// clears the grid from all of its components, they will be added again
         makeCompactGrid();
         revalidate();
-        changeFocus(foucsedCell);
     }
 
     private void changeFocus(Cell cell) {
-        foucsedCell.setBackground(Color.WHITE);
-        foucsedCell = cell;
-        foucsedCell.setBackground(Color.GRAY);
+        focusedCell.setBackground(Color.WHITE);
+        focusedCell = cell;
+        focusedCell.setBackground(Color.GRAY);
     }
 
     @Override
@@ -101,7 +104,7 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
 
     @Override
     public void keyPressed(KeyEvent e) {
-        CellIdentifier focusedCellIdentifier = foucsedCell.getCellIdentifier();
+        CellIdentifier focusedCellIdentifier = focusedCell.getCellIdentifier();
         int focusedColumn = CellIdentifier.columnStringToNumber(focusedCellIdentifier.getColumn());
         int focusedRow = focusedCellIdentifier.getRow();
         switch (e.getKeyCode()) {
@@ -122,7 +125,27 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
                 focusedColumn++;
                 break;
         }
+
         String column = CellIdentifier.columnNumberToString(focusedColumn);
+
+        if (focusedColumn < topLeftCell.getCellIdentifier().getColumnNumber()) {
+            topLeftCell = cells.get(new CellIdentifier(focusedColumn, topLeftCell.getCellIdentifier().getRow()));
+            makeSheet();
+        }
+        if (focusedRow < topLeftCell.getCellIdentifier().getRow()) {
+            topLeftCell = cells.get(new CellIdentifier(topLeftCell.getCellIdentifier().getColumnNumber(), focusedRow));
+            makeSheet();
+        }
+        if (focusedColumn >= bottomRightCell.getCellIdentifier().getColumnNumber()) {
+            topLeftCell = cells.get(new CellIdentifier(topLeftCell.getCellIdentifier().getColumnNumber() + 1,
+                    topLeftCell.getCellIdentifier().getRow()));
+            makeSheet();
+        }
+        if (focusedRow >= bottomRightCell.getCellIdentifier().getRow()) {
+            topLeftCell = cells.get(new CellIdentifier(topLeftCell.getCellIdentifier().getColumnNumber(),
+                    topLeftCell.getCellIdentifier().getRow() + 1));
+            makeSheet();
+        }
         changeFocus(cells.getOrDefault(new CellIdentifier(column, focusedRow), new Cell(column, focusedRow)));
     }
 
@@ -153,8 +176,8 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
     public void makeCompactGrid() {
         SpringLayout layout = (SpringLayout) this.getLayout();
         /// X and Y coordinate counters
-        int x = 0;
-        int y = 0;
+        int x = border;
+        int y = border;
 
         /// height and width of the container
         int height = getHeight();
@@ -164,14 +187,14 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
         int column = topLeftCell.getCellIdentifier().getColumnNumber();
         int row = topLeftCell.getCellIdentifier().getRow();
 
-        /// number of fully visible rows and columns in the grid
-        int rows = 0;
-        int columns = 0;
+        /// bottom right column and row
+        int lastColumn = 0;
+        int lastRow = 0;
 
         int maxWidth = 0;
 
         do {
-            y = 0;
+            y = border;
             do {
                 Cell cell = cells.getOrDefault(new CellIdentifier(column, row), createCell(column, row));
                 row++;
@@ -182,16 +205,22 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener, 
                 y += constraints.getHeight().getValue();
                 y += border;
                 maxWidth = Math.max(maxWidth, constraints.getWidth().getValue());
-                rows++;
             } while (y < height);
+            column++;
             x += maxWidth;
             x += border;
             for (Component component : getComponents()) {
                 layout.getConstraints(component).setWidth(Spring.constant(maxWidth));
             }
-            column++;
+            lastRow = row;
             row = topLeftCell.getCellIdentifier().getRow();
         } while (x < width);
+        lastColumn = column;
+        // System.out.println(CellIdentifier.columnNumberToString(lastColumn));
+        // System.out.println(lastRow);
+        lastColumn--;
+        lastRow--;
+        bottomRightCell = cells.get(new CellIdentifier(lastColumn, lastRow));
     }
 
     public static void main(String[] args) {

@@ -15,7 +15,9 @@ public class Cell extends Label {
         format = new Format();
         setAlignment(CENTER);
         setBackground(Color.WHITE);
-        setText("     "); /// 5 blank spaces is default
+        StringBuilder sb = new StringBuilder(id.getColumn());
+        sb.append(id.getRow());
+        setText(sb.toString()); /// 5 blank spaces is default
     }
 
     public Cell(String column, int row) {
