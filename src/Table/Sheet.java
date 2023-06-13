@@ -6,14 +6,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-
-import javax.swing.*;
+import javax.swing.SpringLayout;
+import javax.swing.Spring;
 import javax.swing.SpringLayout.Constraints;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class Sheet extends JPanel implements MouseListener, MouseWheelListener {
+public class Sheet extends Panel implements MouseListener, MouseWheelListener {
 
     private static int border = 3; /// size of border between adjacent cells
 
@@ -33,10 +32,11 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener {
         topLeftCell = focusedCell;
         bottomRightCell = topLeftCell;
         focusedCell.setBackground(Color.GRAY);
-        setBackground(Color.black);
+        // setBackground(Color.black);
         setLayout(new SpringLayout());
-        setOpaque(true);
+        setVisible(true);
         setFocusable(true);
+        // setBackground(Color.RED);
     }
 
     public void init() {
@@ -115,7 +115,11 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener {
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                focusedRow++;
+                if (e.isControlDown()) {
+                    focusedRow = bottomRightCell.getCellIdentifier().getRow();
+                } else {
+                    focusedRow++;
+                }
                 break;
             case KeyEvent.VK_LEFT:
                 if (e.isControlDown()) {
@@ -125,7 +129,11 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener {
                 }
                 break;
             case KeyEvent.VK_RIGHT:
-                focusedColumn++;
+                if (e.isControlDown()) {
+                    focusedColumn = bottomRightCell.getCellIdentifier().getColumnNumber();
+                } else {
+                    focusedColumn++;
+                }
                 break;
         }
         e.consume();
@@ -161,6 +169,9 @@ public class Sheet extends JPanel implements MouseListener, MouseWheelListener {
             makeSheet();
         }
         Cell newFocus = cells.get(new CellIdentifier(column, focusedRow));
+        if (newFocus == null) {
+            newFocus = createCell(CellIdentifier.columnStringToNumber(column), focusedRow);
+        }
         changeFocus(newFocus);
     }
 
