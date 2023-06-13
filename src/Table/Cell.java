@@ -7,12 +7,18 @@ public class Cell extends Label {
     private final CellIdentifier id;
     private CellValue value;
     private Format format;
+    private boolean error;
+
+    private static final Color errorColor = Color.RED;
+    private static final Color focusErrorColor = new Color(128, 0, 0);
+    private static final Color color = Color.white;
+    private static final Color focusColor = color.GRAY;
 
     public Cell(CellIdentifier id) {
         super();
         this.id = id;
         value = new CellValue();
-        format = new Format();
+        format = new TextFormat();
         setAlignment(CENTER);
         setBackground(Color.DARK_GRAY);
         setForeground(Color.WHITE);
@@ -28,19 +34,46 @@ public class Cell extends Label {
             sb.append(id.getColumn());
         } else {
             setForeground(Color.BLACK);
-            setBackground(Color.WHITE);
+            setBackground(color);
         }
         setText(sb.toString()); /// 5 blank spaces is default
     }
 
-    public Cell(String column, int row) {
-        super();
-        id = new CellIdentifier(column, row);
-        value = new CellValue();
-        format = new Format();
-        setAlignment(CENTER);
-        setBackground(Color.WHITE);
-        setText("     ");
+    public void setFormat(Format f) {
+        format = f;
+        setValue(getValue());
+    }
+
+    public String getValue() {
+        return value.getValue();
+    }
+
+    public void setValue(String text) {
+        value.setValue(format.validate(text));
+        if (value.getDisplayValue() == "=ERROR=") {
+            error = true;
+            setText("ERROR");
+        } else {
+            setText(value.getDisplayValue());
+            error = false;
+        }
+        focus();
+    }
+
+    public void focus() {
+        if (error) {
+            setBackground(focusErrorColor);
+        } else {
+            setBackground(focusColor);
+        }
+    }
+
+    public void unfocus() {
+        if (error) {
+            setBackground(errorColor);
+        } else {
+            setBackground(color);
+        }
     }
 
     public CellIdentifier getCellIdentifier() {

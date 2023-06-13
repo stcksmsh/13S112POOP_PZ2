@@ -1,7 +1,8 @@
 package Table;
 
 public class CellValue {
-    String value;
+    protected String value;
+    protected String displayValue;
 
     CellValue() {
         super();
@@ -11,6 +12,10 @@ public class CellValue {
     CellValue(String value) {
         super();
         this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     public String getDisplayValue() {

@@ -8,17 +8,19 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.FileAlreadyExistsException;
+import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-public class Table extends Frame implements KeyListener {
+public class Table extends Frame implements KeyListener, ActionListener {
 
     private ArrayList<Sheet> sheets;
     Sheet currentSheet;
@@ -55,8 +57,8 @@ public class Table extends Frame implements KeyListener {
                         changeSheet(index);
                     } else {
                         String sheetName = JOptionPane.showInputDialog("Enter sheet name...");
-                        System.err.println(sheetName);
-                        addSheet(sheetName);
+                        if (!sheetName.equals(""))
+                            addSheet(sheetName);
                     }
                 } else {
                     System.err.println("ERROR, SOURCE IS NOT A LABEL");
@@ -66,30 +68,87 @@ public class Table extends Frame implements KeyListener {
         add(sheetBar, BorderLayout.SOUTH);
         sheetBar.setVisible(true);
 
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                exit();
+            };
+        });
+
         /// now add the menu
         MenuBar menuBar = new MenuBar();
 
         Menu file = new Menu("File");
+        {
+            menuBar.add(file);
 
-        MenuItem fileNew = new MenuItem("New", new MenuShortcut(KeyEvent.VK_N));
-        file.add(fileNew);
+            {
+                MenuItem fileNew = new MenuItem("New", new MenuShortcut(KeyEvent.VK_N));
+                file.add(fileNew);
+                fileNew.addActionListener(this);
+            }
 
-        Menu fileOpen = new Menu("Open");
-        file.add(fileOpen);
-        MenuItem fileOpenCSV = new MenuItem("CSV", new MenuShortcut(KeyEvent.VK_O));
-        fileOpen.add(fileOpenCSV);
-        MenuItem fileOpenJSON = new MenuItem("JSON", new MenuShortcut(KeyEvent.VK_O, true));
-        fileOpen.add(fileOpenJSON);
+            {
+                Menu fileOpen = new Menu("Open");
+                file.add(fileOpen);
+                MenuItem fileOpenCSV = new MenuItem("Open from CSV", new MenuShortcut(KeyEvent.VK_O));
+                fileOpen.add(fileOpenCSV);
+                fileOpenCSV.addActionListener(this);
+                MenuItem fileOpenJSON = new MenuItem("Open from JSON", new MenuShortcut(KeyEvent.VK_O, true));
+                fileOpen.add(fileOpenJSON);
+                fileOpenJSON.addActionListener(this);
+            }
 
-        Menu fileSave = new Menu("Save");
-        file.add(fileSave);
-        MenuItem fileSaveCSV = new MenuItem("CSV", new MenuShortcut(KeyEvent.VK_S));
-        fileSave.add(fileSaveCSV);
-        MenuItem fileSaveJSON = new MenuItem("JSON", new MenuShortcut(KeyEvent.VK_S, true));
-        fileSave.add(fileSaveJSON);
+            {
+                Menu fileSave = new Menu("Save");
+                file.add(fileSave);
+                MenuItem fileSaveCSV = new MenuItem("Save to CSV", new MenuShortcut(KeyEvent.VK_S));
+                fileSave.add(fileSaveCSV);
+                fileSaveCSV.addActionListener(this);
+                MenuItem fileSaveJSON = new MenuItem("Save to JSON", new MenuShortcut(KeyEvent.VK_S, true));
+                fileSave.add(fileSaveJSON);
+                fileSaveJSON.addActionListener(this);
+            }
+        }
 
-        menuBar.add(file);
+        Menu format = new Menu("Format");
+        {
+            menuBar.add(format);
+
+            {
+                MenuItem formatNumber = new MenuItem("NumberFormat", new MenuShortcut(KeyEvent.VK_F));
+                format.add(formatNumber);
+                formatNumber.addActionListener(this);
+            }
+
+            {
+                MenuItem formatDate = new MenuItem("DateFormat", new MenuShortcut(KeyEvent.VK_F, true));
+                format.add(formatDate);
+                formatDate.addActionListener(this);
+            }
+
+            {
+                MenuItem formatText = new MenuItem("TextFormat");
+                format.add(formatText);
+                formatText.addActionListener(this);
+            }
+        }
+
         setMenuBar(menuBar);
+    }
+
+    private void exit() {
+        int input = JOptionPane.showConfirmDialog(this, "Your changes may be lost...", "Save document?",
+                JOptionPane.YES_NO_CANCEL_OPTION);
+        if (input == 0)
+            save();
+        if (input == 1)
+            System.exit(0);
+
+    }
+
+    private void save() {
+        System.err.println("SAVING IS TO BE IMPLEMENTED");
+        System.exit(0);
     }
 
     private void updateInputField() {
@@ -119,6 +178,42 @@ public class Table extends Frame implements KeyListener {
         revalidate();
         currentSheet.init();
 
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {/// only used on MenuItems
+        if (!(e.getSource() instanceof MenuItem)) {
+            System.err.println("SOURCE MUST BE OF TYPE 'MenuItem'");
+            System.err.println(e);
+            return;
+        }
+        MenuItem src = (MenuItem) e.getSource();
+        String label = src.getLabel();
+        switch (label) {
+            case "New":
+                break;
+            case "Open from CSV":
+                break;
+            case "Open from JSON":
+                break;
+            case "Save to CSV":
+                break;
+            case "Save to JSON":
+                break;
+            case "NumberFormat":
+                currentSheet.setFormat(new NumberFormat(3));
+                break;
+            case "DateFormat":
+                currentSheet.setFormat(new DateFormat());
+                break;
+            case "TextFormat":
+                currentSheet.setFormat(new TextFormat());
+                break;
+            default:
+                System.err.print("Unknown action: ");
+                System.err.println(e);
+                break;
+        }
     }
 
     @Override

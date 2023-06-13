@@ -1,10 +1,8 @@
 package Table;
 
-public class Format {
+abstract public class Format {
     public Format() {
-    }
+    };
 
-    public String validate(String text) {
-        return text;
-    }
+    abstract public String validate(String text);
 }

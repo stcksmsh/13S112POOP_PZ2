@@ -32,11 +32,9 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         topLeftCell = focusedCell;
         bottomRightCell = topLeftCell;
         focusedCell.setBackground(Color.GRAY);
-        // setBackground(Color.black);
         setLayout(new SpringLayout());
         setVisible(true);
         setFocusable(true);
-        // setBackground(Color.RED);
     }
 
     public void init() {
@@ -59,43 +57,15 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         revalidate();
     }
 
+    public void setFormat(Format f) {
+        focusedCell.setFormat(f);
+        makeSheet();
+    }
+
     private void changeFocus(Cell cell) {
-        focusedCell.setBackground(Color.WHITE);
+        focusedCell.unfocus();
         focusedCell = cell;
-        focusedCell.setBackground(Color.GRAY);
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        Object obj = e.getSource();
-        if (obj instanceof Cell)
-            changeFocus((Cell) obj);
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        int notches = e.getWheelRotation();
-        if (notches < 0) { /// moved up
-            CellIdentifier topLeftId = topLeftCell.getCellIdentifier();
-            int row = topLeftId.getRow();
-            if (row > 1) {
-                row--;
-                CellIdentifier newTopLeftId = new CellIdentifier(topLeftId.getColumn(), row);
-                topLeftCell = cells.get(newTopLeftId);
-                if (topLeftCell == null)
-                    topLeftCell = createCell(topLeftId.getColumnNumber(), row);
-                makeSheet();
-            }
-        } else {
-            CellIdentifier topLeftId = topLeftCell.getCellIdentifier();
-            int row = topLeftId.getRow();
-            row++;
-            CellIdentifier newTopLeftId = new CellIdentifier(topLeftId.getColumn(), row);
-            topLeftCell = cells.get(newTopLeftId);
-            if (topLeftCell == null)
-                createCell(topLeftId.getColumnNumber(), row);
-            makeSheet();
-        }
+        focusedCell.focus();
     }
 
     public Cell getFocusedCell() {
@@ -113,6 +83,7 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 } else if (focusedRow > 1) {
                     focusedRow--;
                 }
+                e.consume();
                 break;
             case KeyEvent.VK_DOWN:
                 if (e.isControlDown()) {
@@ -120,6 +91,7 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 } else {
                     focusedRow++;
                 }
+                e.consume();
                 break;
             case KeyEvent.VK_LEFT:
                 if (e.isControlDown()) {
@@ -127,6 +99,7 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 } else if (focusedColumn > 1) {
                     focusedColumn--;
                 }
+                e.consume();
                 break;
             case KeyEvent.VK_RIGHT:
                 if (e.isControlDown()) {
@@ -134,9 +107,9 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 } else {
                     focusedColumn++;
                 }
+                e.consume();
                 break;
         }
-        e.consume();
 
         String column = CellIdentifier.columnNumberToString(focusedColumn);
 
@@ -176,8 +149,41 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
     }
 
     public void setText(String text) {
-        focusedCell.setText(text);
+        focusedCell.setValue(text);
         makeSheet();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Object obj = e.getSource();
+        if (obj instanceof Cell)
+            changeFocus((Cell) obj);
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int notches = e.getWheelRotation();
+        if (notches < 0) { /// moved up
+            CellIdentifier topLeftId = topLeftCell.getCellIdentifier();
+            int row = topLeftId.getRow();
+            if (row > 1) {
+                row--;
+                CellIdentifier newTopLeftId = new CellIdentifier(topLeftId.getColumn(), row);
+                topLeftCell = cells.get(newTopLeftId);
+                if (topLeftCell == null)
+                    topLeftCell = createCell(topLeftId.getColumnNumber(), row);
+                makeSheet();
+            }
+        } else {
+            CellIdentifier topLeftId = topLeftCell.getCellIdentifier();
+            int row = topLeftId.getRow();
+            row++;
+            CellIdentifier newTopLeftId = new CellIdentifier(topLeftId.getColumn(), row);
+            topLeftCell = cells.get(newTopLeftId);
+            if (topLeftCell == null)
+                createCell(topLeftId.getColumnNumber(), row);
+            makeSheet();
+        }
     }
 
     @Override
