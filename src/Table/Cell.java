@@ -44,6 +44,10 @@ public class Cell extends Label {
         setValue(getValue());
     }
 
+    public char getFormatCode() {
+        return format.getCode();
+    }
+
     public String getValue() {
         return value.getValue();
     }

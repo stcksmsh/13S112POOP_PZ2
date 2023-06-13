@@ -50,6 +50,7 @@ public class InputField extends Panel {
         sb.append(cell.getCellIdentifier().getRow());
         cellID.setText(String.format("  %-7s", sb.toString()));
         value.setText(cell.getText());
+        switch()
         this.format.setText(String.format("%14s  ", "TextFormat"));
     }
 }

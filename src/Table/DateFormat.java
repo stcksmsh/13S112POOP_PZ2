@@ -6,6 +6,11 @@ import java.util.regex.Matcher;
 public class DateFormat extends Format {
 
     @Override
+    public char getCode() {
+        return 'D';
+    }
+
+    @Override
     public String validate(String text) {
         Pattern pattern = Pattern.compile("^(\\d{2})\\.(\\d{2})\\.(\\d{4})$");
         Matcher matcher = pattern.matcher(text);

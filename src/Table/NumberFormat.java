@@ -9,6 +9,11 @@ public class NumberFormat extends Format {
     }
 
     @Override
+    public char getCode() {
+        return 'N';
+    }
+
+    @Override
     public String validate(String text) {
         try {
             text = String.format("%." + precision + "f", Double.parseDouble(text));
