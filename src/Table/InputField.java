@@ -49,8 +49,17 @@ public class InputField extends Panel {
         StringBuilder sb = new StringBuilder(cell.getCellIdentifier().getColumn());
         sb.append(cell.getCellIdentifier().getRow());
         cellID.setText(String.format("  %-7s", sb.toString()));
-        value.setText(cell.getText());
-        switch()
-        this.format.setText(String.format("%14s  ", "TextFormat"));
+        value.setText(cell.getValue());
+        switch (cell.getFormatCode()) {
+            case 'T':
+                this.format.setText(String.format("%14s  ", "TextFormat"));
+                break;
+            case 'N':
+                this.format.setText(String.format("%14s  ", "NumberFormat"));
+                break;
+            case 'D':
+                this.format.setText(String.format("%14s  ", "DataFormat"));
+                break;
+        }
     }
 }

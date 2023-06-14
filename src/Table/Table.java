@@ -15,12 +15,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-public class Table extends Frame implements KeyListener, ActionListener {
+public class Table extends Frame implements KeyListener, ActionListener, MouseListener {
 
     private ArrayList<Sheet> sheets;
     Sheet currentSheet;
@@ -40,8 +41,10 @@ public class Table extends Frame implements KeyListener, ActionListener {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    currentSheet.setText(inputField.getText());
-                    currentSheet.requestFocus();
+                    if (currentSheet != null) {
+                        currentSheet.setText(inputField.getText());
+                        currentSheet.requestFocus();
+                    }
                 }
             }
         });
@@ -77,15 +80,20 @@ public class Table extends Frame implements KeyListener, ActionListener {
         /// now add the menu
         MenuBar menuBar = new MenuBar();
 
+        Menu mnew = new Menu("New");
+        {
+            menuBar.add(mnew);
+            MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
+            mnew.add(newFile);
+            newFile.addActionListener(this);
+            MenuItem newSheet = new MenuItem("New sheet", new MenuShortcut(KeyEvent.VK_N, true));
+            mnew.add(newSheet);
+            newSheet.addActionListener(this);
+        }
+
         Menu file = new Menu("File");
         {
             menuBar.add(file);
-
-            {
-                MenuItem fileNew = new MenuItem("New", new MenuShortcut(KeyEvent.VK_N));
-                file.add(fileNew);
-                fileNew.addActionListener(this);
-            }
 
             {
                 Menu fileOpen = new Menu("Open");
@@ -156,11 +164,12 @@ public class Table extends Frame implements KeyListener, ActionListener {
     }
 
     private void changeSheet(int index) {
+        if (sheets.get(index) == currentSheet || index < 0 || index >= sheets.size())
+            return;
         if (currentSheet != null)
             remove(currentSheet);
         currentSheet = sheets.get(index);
         add(currentSheet, BorderLayout.CENTER);
-        currentSheet.addKeyListener(this);
         revalidate();
         currentSheet.init();
     }
@@ -173,11 +182,17 @@ public class Table extends Frame implements KeyListener, ActionListener {
         currentSheet = new Sheet();
         sheets.add(currentSheet);
         currentSheet.addKeyListener(this);
+        currentSheet.addMouseListener(this);
         add(currentSheet, BorderLayout.CENTER);
         currentSheet.requestFocus();
         revalidate();
         currentSheet.init();
 
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        updateInputField();
     }
 
     @Override
@@ -190,7 +205,13 @@ public class Table extends Frame implements KeyListener, ActionListener {
         MenuItem src = (MenuItem) e.getSource();
         String label = src.getLabel();
         switch (label) {
-            case "New":
+            case "New file":
+                break;
+            case "New sheet":
+                String sheetName = JOptionPane.showInputDialog("Enter sheet name...");
+                if (sheetName != null && !sheetName.equals("")) {
+                    addSheet(sheetName);
+                }
                 break;
             case "Open from CSV":
                 break;
@@ -201,13 +222,22 @@ public class Table extends Frame implements KeyListener, ActionListener {
             case "Save to JSON":
                 break;
             case "NumberFormat":
-                currentSheet.setFormat(new NumberFormat(3));
+                if (currentSheet == null)
+                    return;
+                try {
+                    int precision = Integer.parseInt(JOptionPane.showInputDialog(this, "Precision for NumberFormat"));
+                    currentSheet.setFormat(new NumberFormat(precision));
+                    updateInputField();
+                } catch (NumberFormatException nfe) {
+                }
                 break;
             case "DateFormat":
                 currentSheet.setFormat(new DateFormat());
+                updateInputField();
                 break;
             case "TextFormat":
                 currentSheet.setFormat(new TextFormat());
+                updateInputField();
                 break;
             default:
                 System.err.print("Unknown action: ");
@@ -218,18 +248,44 @@ public class Table extends Frame implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyChar()) {
+        switch (e.getKeyCode()) {
             case KeyEvent.VK_ENTER:
                 inputField.requestFocus();
                 updateInputField();
+                e.consume();
                 break;
             case KeyEvent.VK_ESCAPE:
+                e.consume();
                 break;
             default:
                 currentSheet.keyPress(e);
                 updateInputField();
                 break;
         }
+    }
+
+    public String getCellValue(String sheetName, String cellID) {
+        int index = sheetBar.getIndex(sheetName);
+        if (index == -1) {
+            return null;
+        }
+        return sheets.get(index).getCellValue(null, cellID);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
     }
 
     @Override

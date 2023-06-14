@@ -6,8 +6,6 @@ import java.awt.Label;
 public class Cell extends Label {
     private final CellIdentifier id;
     private CellValue value;
-    private Format format;
-    private boolean error;
 
     private static final Color errorColor = Color.RED;
     private static final Color focusErrorColor = new Color(128, 0, 0);
@@ -18,7 +16,6 @@ public class Cell extends Label {
         super();
         this.id = id;
         value = new CellValue();
-        format = new TextFormat();
         setAlignment(CENTER);
         setBackground(Color.DARK_GRAY);
         setForeground(Color.WHITE);
@@ -35,17 +32,21 @@ public class Cell extends Label {
         } else {
             setForeground(Color.BLACK);
             setBackground(color);
+            sb.append(value.getDisplayValue());
         }
         setText(sb.toString()); /// 5 blank spaces is default
     }
 
     public void setFormat(Format f) {
-        format = f;
+        /// cant set formula to anything other than NumberFormat
+        if (value instanceof Formula && !(f instanceof NumberFormat))
+            return;
+        value.setFormat(f);
         setValue(getValue());
     }
 
     public char getFormatCode() {
-        return format.getCode();
+        return value.getFormatCode();
     }
 
     public String getValue() {
@@ -53,19 +54,32 @@ public class Cell extends Label {
     }
 
     public void setValue(String text) {
-        value.setValue(format.validate(text));
-        if (value.getDisplayValue() == "=ERROR=") {
-            error = true;
-            setText("ERROR");
+        if (text.length() > 0 && text.charAt(0) == '=') {/// formula
+            if (value instanceof Formula) {
+                value.setValue(text);
+            } else {
+                value = new Formula(value, ((Sheet) getParent()));
+                value.setValue(text);
+            }
         } else {
-            setText(value.getDisplayValue());
-            error = false;
+            if (value instanceof Formula) {
+                ((Formula) value).notifyDependencies();
+                value = new CellValue();
+                value.setValue(text);
+            } else {
+                value.setValue(text);
+            }
         }
+        setText(value.getDisplayValue());
         focus();
     }
 
+    public String getDisplayValue() {
+        return value.getDisplayValue();
+    }
+
     public void focus() {
-        if (error) {
+        if (value.isError()) {
             setBackground(focusErrorColor);
         } else {
             setBackground(focusColor);
@@ -73,7 +87,7 @@ public class Cell extends Label {
     }
 
     public void unfocus() {
-        if (error) {
+        if (value.isError()) {
             setBackground(errorColor);
         } else {
             setBackground(color);

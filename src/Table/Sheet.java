@@ -153,11 +153,20 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         makeSheet();
     }
 
+    public String getCellValue(String sheetName, String cellID) {
+        if (sheetName == null) {
+            return cells.get(new CellIdentifier(cellID)).getDisplayValue();
+        } else {
+            return ((Table) getParent()).getCellValue(sheetName, cellID);
+        }
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         Object obj = e.getSource();
         if (obj instanceof Cell)
             changeFocus((Cell) obj);
+        dispatchEvent(e);
     }
 
     @Override
@@ -222,7 +231,7 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
 
         int maxWidth;
         do {
-            maxWidth = 0;
+            maxWidth = 20;
             y = border;
             int i = getComponentCount();
             do {

@@ -14,6 +14,15 @@ public class CellIdentifier {
         this.row = row;
     }
 
+    public CellIdentifier(String cellID) {
+        super();
+
+        StringBuilder sb = new StringBuilder("");
+        sb.append(cellID.charAt(0));
+        column = sb.toString();
+        row = cellID.charAt(1) - '0';
+    }
+
     public String getColumn() {
         return column;
     }
