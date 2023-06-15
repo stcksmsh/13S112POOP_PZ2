@@ -27,7 +27,7 @@ public class CellValue {
         dependents = formula.dependents;
     }
 
-    public char getFormatCode() {
+    public String getFormatCode() {
         return format.getCode();
     }
 

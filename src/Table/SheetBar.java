@@ -54,6 +54,12 @@ public class SheetBar extends Panel implements MouseListener {
         return -1;
     }
 
+    public void changeSheet(int index) {
+        currentLabel.setBackground(Color.LIGHT_GRAY);
+        currentLabel = labels.get(index);
+        currentLabel.setBackground(Color.GRAY);
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() instanceof Label) {

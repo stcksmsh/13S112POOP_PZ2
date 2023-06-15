@@ -3,8 +3,8 @@ package Table;
 public class TextFormat extends Format {
 
     @Override
-    public char getCode() {
-        return 'T';
+    public String getCode() {
+        return "T";
     }
 
     @Override

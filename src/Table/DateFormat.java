@@ -6,8 +6,8 @@ import java.util.regex.Matcher;
 public class DateFormat extends Format {
 
     @Override
-    public char getCode() {
-        return 'D';
+    public String getCode() {
+        return "D";
     }
 
     @Override
@@ -37,9 +37,5 @@ public class DateFormat extends Format {
                 return "=ERROR=";
         }
         return text;
-    }
-
-    public static void main(String[] args) {
-        System.err.println(new DateFormat().validate("29.02.1100"));
     }
 }

@@ -1,5 +1,8 @@
 package Table;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CellIdentifier {
     private final String column;/// columns represented by A, B, ..., Z, AA, AB, ..., AZ, BA
     private final int row;
@@ -15,12 +18,15 @@ public class CellIdentifier {
     }
 
     public CellIdentifier(String cellID) {
-        super();
-
-        StringBuilder sb = new StringBuilder("");
-        sb.append(cellID.charAt(0));
-        column = sb.toString();
-        row = cellID.charAt(1) - '0';
+        Matcher matcher = Pattern.compile("([A-Z]+)([0-9]+)").matcher(cellID);
+        if (!matcher.find()) {
+            System.err.println("INVALID CELL: " + cellID);
+            row = -1;
+            column = null;
+            return;
+        }
+        column = matcher.group(1);
+        row = Integer.parseInt(matcher.group(2));
     }
 
     public String getColumn() {

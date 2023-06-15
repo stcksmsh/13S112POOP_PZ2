@@ -17,14 +17,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
-
+import java.util.Iterator;
 import javax.swing.JOptionPane;
 
-public class Table extends Frame implements KeyListener, ActionListener, MouseListener {
+public class Table extends Frame
+        implements KeyListener, ActionListener, MouseListener, Iterable<AbstractMap.SimpleEntry<String, Cell>> {
 
     private ArrayList<Sheet> sheets;
-    Sheet currentSheet;
+    Sheet currentSheet = null;
 
     private InputField inputField;
     private SheetBar sheetBar;
@@ -142,6 +144,46 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
         }
 
         setMenuBar(menuBar);
+
+        setSize(500, 500);
+        setVisible(true);
+
+    }
+
+    @Override
+    public Iterator<AbstractMap.SimpleEntry<String, Cell>> iterator() {
+
+        Iterator<AbstractMap.SimpleEntry<String, Cell>> it = new Iterator<AbstractMap.SimpleEntry<String, Cell>>() {
+            private int sheetIndex = 0;
+            Iterator<Cell> currentIterator = null;
+
+            @Override
+            public boolean hasNext() {
+                if (currentIterator == null) /// only if next() has never been called
+                    return sheets.size() > 0;
+                if (sheetIndex > sheets.size())
+                    return false;
+                return sheetIndex < sheets.size() - 1 || currentIterator.hasNext();
+            }
+
+            @Override
+            public AbstractMap.SimpleEntry<String, Cell> next() {
+                if (currentIterator == null) {
+                    currentIterator = sheets.get(sheetIndex).iterator();
+                }
+                if (!currentIterator.hasNext()) {
+                    currentIterator = sheets.get(++sheetIndex).iterator();
+                }
+                return new AbstractMap.SimpleEntry<String, Cell>(sheetBar.labels.get(sheetIndex).getText(),
+                        currentIterator.next());
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("REMOVAL NOT ALLOWED");
+            }
+        };
+        return it;
     }
 
     private void exit() {
@@ -159,19 +201,45 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
         System.exit(0);
     }
 
+    public void setValue(String sheetName, String column, int row, String value, String FormatCode) {
+        int index = sheetBar.getIndex(sheetName);
+        if (index == -1) {
+            addSheet(sheetName);
+            index = sheets.size() - 1;
+        }
+        sheets.get(index).setValue(column, row, value, FormatCode);
+    }
+
+    public void init() {
+        currentSheet.init();
+        updateInputField();
+    }
+
     private void updateInputField() {
         inputField.setValues(currentSheet.getFocusedCell());
     }
 
     private void changeSheet(int index) {
-        if (sheets.get(index) == currentSheet || index < 0 || index >= sheets.size())
+        if (index < 0 || index >= sheets.size() || sheets.get(index) == currentSheet)
             return;
         if (currentSheet != null)
             remove(currentSheet);
         currentSheet = sheets.get(index);
+        sheetBar.changeSheet(index);
         add(currentSheet, BorderLayout.CENTER);
         revalidate();
         currentSheet.init();
+        updateInputField();
+        currentSheet.requestFocus();
+    }
+
+    private void copyTable(Table table) {
+        sheets = table.sheets;
+        currentSheet = table.currentSheet;
+        inputField = table.inputField;
+        sheetBar = table.sheetBar;
+        init();
+        table.dispose();
     }
 
     private void addSheet(String text) {
@@ -204,8 +272,11 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
         }
         MenuItem src = (MenuItem) e.getSource();
         String label = src.getLabel();
+        CSVParser parser;
+        String filename;
         switch (label) {
             case "New file":
+
                 break;
             case "New sheet":
                 String sheetName = JOptionPane.showInputDialog("Enter sheet name...");
@@ -214,10 +285,23 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
                 }
                 break;
             case "Open from CSV":
+                parser = new CSVParser();
+                filename = JOptionPane.showInputDialog(this, "Enter file name");
+                Table table = parser.open(filename);
+                if (table == null) {
+                    JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
+                } else {
+                    dispose();
+                }
                 break;
             case "Open from JSON":
                 break;
             case "Save to CSV":
+                parser = new CSVParser();
+                filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (parser.save(this, filename) != 0) {
+                    JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
+                }
                 break;
             case "Save to JSON":
                 break;
@@ -257,11 +341,45 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
             case KeyEvent.VK_ESCAPE:
                 e.consume();
                 break;
+            case KeyEvent.VK_LEFT:
+                if (e.isAltDown()) {
+                    if (currentSheet != null)
+                        changeSheet(sheets.indexOf(currentSheet) - 1);
+                } else {
+                    currentSheet.keyPress(e);
+                    updateInputField();
+                }
+                break;
+            case KeyEvent.VK_RIGHT:
+                if (e.isAltDown()) {
+                    if (currentSheet != null)
+                        changeSheet(sheets.indexOf(currentSheet) + 1);
+                } else {
+                    currentSheet.keyPress(e);
+                    updateInputField();
+                }
+                break;
             default:
-                currentSheet.keyPress(e);
-                updateInputField();
+                if (e.isAltDown() && (e.getKeyChar() >= '0' && e.getKeyChar() <= '9')) {
+                    int index = e.getKeyChar() - '1';
+                    if (index == -1) {
+                        index = sheets.size() - 1;
+                    }
+                    index = Math.min(index, sheets.size() - 1);
+                    changeSheet(index);
+                } else {
+                    currentSheet.keyPress(e);
+                    updateInputField();
+                }
                 break;
         }
+    }
+
+    public Cell getCell(String sheetName, String cellID) {
+        int index = sheetBar.getIndex(sheetName);
+        CellIdentifier cellIdentifier = new CellIdentifier(cellID);
+        Cell cell = sheets.get(index).getCell(cellIdentifier);
+        return cell;
     }
 
     public String getCellValue(String sheetName, String cellID) {
@@ -297,8 +415,9 @@ public class Table extends Frame implements KeyListener, ActionListener, MouseLi
     }
 
     public static void main(String[] args) {
+        // Parser parser = new CSVParser();
+        // Table t = parser.open("test.csv");
         Table t = new Table();
-        t.setSize(500, 500);
-        t.setVisible(true);
+        // t.setTitle("test");
     }
 }

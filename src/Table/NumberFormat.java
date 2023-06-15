@@ -9,8 +9,10 @@ public class NumberFormat extends Format {
     }
 
     @Override
-    public char getCode() {
-        return 'N';
+    public String getCode() {
+        StringBuilder sb = new StringBuilder("N");
+        sb.append(precision);
+        return sb.toString();
     }
 
     @Override

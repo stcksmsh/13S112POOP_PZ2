@@ -10,9 +10,12 @@ import javax.swing.SpringLayout;
 import javax.swing.Spring;
 import javax.swing.SpringLayout.Constraints;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
-public class Sheet extends Panel implements MouseListener, MouseWheelListener {
+public class Sheet extends Panel
+        implements MouseListener, MouseWheelListener, Iterable<Cell> {
 
     private static int border = 3; /// size of border between adjacent cells
 
@@ -37,9 +40,18 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         setFocusable(true);
     }
 
+    @Override
+    public Iterator<Cell> iterator() {
+        return cells.values().iterator();
+    }
+
     public void init() {
         makeSheet();
         changeFocus(focusedCell);
+    }
+
+    public final Map<CellIdentifier, Cell> getCells() {
+        return cells;
     }
 
     private Cell createCell(int column, int row) {
@@ -94,6 +106,8 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 e.consume();
                 break;
             case KeyEvent.VK_LEFT:
+                if (e.isAltDown())
+                    return;
                 if (e.isControlDown()) {
                     focusedColumn = 1;
                 } else if (focusedColumn > 1) {
@@ -102,6 +116,8 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
                 e.consume();
                 break;
             case KeyEvent.VK_RIGHT:
+                if (e.isAltDown())
+                    return;
                 if (e.isControlDown()) {
                     focusedColumn = bottomRightCell.getCellIdentifier().getColumnNumber();
                 } else {
@@ -148,6 +164,22 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         changeFocus(newFocus);
     }
 
+    public void setValue(String column, int row, String value, String formatCode) {
+        CellIdentifier cellIdentifier = new CellIdentifier(column, row);
+        Cell cell = cells.get(cellIdentifier);
+        cell.setValue(value);
+        Format format = null;
+        if (formatCode.equals("T")) {
+            format = new TextFormat();
+        } else if (formatCode.equals("D")) {
+            format = new DateFormat();
+        } else {
+            int precision = Integer.parseInt(formatCode.substring(1));
+            format = new NumberFormat(precision);
+        }
+        cell.setFormat(format);
+    }
+
     public void setText(String text) {
         focusedCell.setValue(text);
         makeSheet();
@@ -167,6 +199,11 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         if (obj instanceof Cell)
             changeFocus((Cell) obj);
         dispatchEvent(e);
+    }
+
+    public Cell getCell(CellIdentifier cellIdentifier) {
+        return cells.getOrDefault(cellIdentifier,
+                createCell(cellIdentifier.getColumnNumber(), cellIdentifier.getRow()));
     }
 
     @Override
@@ -270,14 +307,5 @@ public class Sheet extends Panel implements MouseListener, MouseWheelListener {
         lastColumn--;
         lastRow--;
         bottomRightCell = cells.get(new CellIdentifier(lastColumn, lastRow));
-    }
-
-    public static void main(String[] args) {
-        // Frame f = new Frame();
-        // f.setSize(500, 500);
-        // Sheet s = new Sheet();
-        // f.add(s);
-        // f.setVisible(true);
-        // s.init();
     }
 }

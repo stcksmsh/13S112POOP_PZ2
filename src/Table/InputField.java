@@ -50,7 +50,7 @@ public class InputField extends Panel {
         sb.append(cell.getCellIdentifier().getRow());
         cellID.setText(String.format("  %-7s", sb.toString()));
         value.setText(cell.getValue());
-        switch (cell.getFormatCode()) {
+        switch (cell.getFormatCode().charAt(0)) {
             case 'T':
                 this.format.setText(String.format("%14s  ", "TextFormat"));
                 break;
