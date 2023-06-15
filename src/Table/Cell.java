@@ -76,7 +76,6 @@ public class Cell extends Label {
             }
         }
         setText(value.getDisplayValue());
-        focus();
     }
 
     public String getDisplayValue() {

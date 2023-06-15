@@ -183,6 +183,7 @@ public class Sheet extends Panel
     public void setText(String text) {
         focusedCell.setValue(text);
         makeSheet();
+        focusedCell.focus();
     }
 
     public CellValue getCellValueAndNotify(Formula source, String sheetName, String cellID) {

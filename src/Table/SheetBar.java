@@ -24,6 +24,10 @@ public class SheetBar extends Panel implements MouseListener {
 
     }
 
+    public String get(int index) {
+        return labels.get(index).getText();
+    }
+
     public void addSheet(String text) {
         Label newSheet = new Label(text, Label.CENTER);
         newSheet.setBackground(Color.LIGHT_GRAY);

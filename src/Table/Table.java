@@ -31,6 +31,8 @@ public class Table extends Frame
     private ArrayList<Sheet> sheets;
     Sheet currentSheet = null;
 
+    private ActionHandler actionHandler;
+
     private InputField inputField;
     private SheetBar sheetBar;
 
@@ -39,6 +41,7 @@ public class Table extends Frame
         /// initialize sheet array
         sheets = new ArrayList<Sheet>();
         currentSheet = null;
+        actionHandler = new ActionHandler(this);
 
         /// now add the input field used for sheet editing
         inputField = new InputField();
@@ -47,6 +50,9 @@ public class Table extends Frame
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (currentSheet != null) {
+                        String sheetName = sheetBar.get(sheets.indexOf(currentSheet));
+                        Cell cell = currentSheet.getFocusedCell();
+                        actionHandler.add(sheetName, cell, cell.getValue(), inputField.getText());
                         currentSheet.setText(inputField.getText());
                         currentSheet.requestFocus();
                     }
@@ -85,20 +91,20 @@ public class Table extends Frame
         /// now add the menu
         MenuBar menuBar = new MenuBar();
 
-        Menu mnew = new Menu("New");
-        {
-            menuBar.add(mnew);
-            MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
-            mnew.add(newFile);
-            newFile.addActionListener(this);
-            MenuItem newSheet = new MenuItem("New sheet", new MenuShortcut(KeyEvent.VK_N, true));
-            mnew.add(newSheet);
-            newSheet.addActionListener(this);
-        }
-
         Menu file = new Menu("File");
         {
             menuBar.add(file);
+
+            {
+                Menu mnew = new Menu("New");
+                file.add(mnew);
+                MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
+                mnew.add(newFile);
+                newFile.addActionListener(this);
+                MenuItem newSheet = new MenuItem("New sheet", new MenuShortcut(KeyEvent.VK_N, true));
+                mnew.add(newSheet);
+                newSheet.addActionListener(this);
+            }
 
             {
                 Menu fileOpen = new Menu("Open");
@@ -120,6 +126,22 @@ public class Table extends Frame
                 MenuItem fileSaveJSON = new MenuItem("Save to JSON", new MenuShortcut(KeyEvent.VK_S, true));
                 fileSave.add(fileSaveJSON);
                 fileSaveJSON.addActionListener(this);
+            }
+        }
+
+        Menu edit = new Menu("Edit");
+        {
+            menuBar.add(edit);
+            {
+                MenuItem undoEdit = new MenuItem("Undo", new MenuShortcut(KeyEvent.VK_Z));
+                edit.add(undoEdit);
+                undoEdit.addActionListener(this);
+            }
+
+            {
+                MenuItem redoEdit = new MenuItem("Redo", new MenuShortcut(KeyEvent.VK_Y));
+                edit.add(redoEdit);
+                redoEdit.addActionListener(this);
             }
         }
 
@@ -318,6 +340,12 @@ public class Table extends Frame
                     addSheet(sheetName);
                 }
                 break;
+            case "Undo":
+                actionHandler.undo();
+                break;
+            case "Redo":
+                actionHandler.redo();
+                break;
             case "Open from CSV":
                 parser = new CSVParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
@@ -478,8 +506,6 @@ public class Table extends Frame
     }
 
     public static void main(String[] args) {
-        // Parser parser = new CSVParser();
-        // Table t = parser.open("test.csv");
         Table t = new Table();
     }
 }
