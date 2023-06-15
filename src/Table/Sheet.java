@@ -292,12 +292,14 @@ public class Sheet extends Panel
                 if (cell == null) {
                     cell = createCell(column, row);
                 }
+                add(cell);
+                if (column != 0 && row != 0)
+                    cell.unfocus();
                 if (row == 0) {
                     row = topLeftCell.getCellIdentifier().getRow();
                 } else {
                     row++;
                 }
-                add(cell);
                 Constraints constraints = layout.getConstraints(cell);
                 maxWidth = Math.max(maxWidth, constraints.getWidth().getValue());
                 constraints.setY(Spring.constant(y));

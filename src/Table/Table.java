@@ -303,8 +303,9 @@ public class Table extends Frame
         }
         MenuItem src = (MenuItem) e.getSource();
         String label = src.getLabel();
-        CSVParser parser;
+        Parser parser;
         String filename;
+        Table table;
         switch (label) {
             case "New file":
                 Table t = new Table();
@@ -320,7 +321,7 @@ public class Table extends Frame
             case "Open from CSV":
                 parser = new CSVParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
-                Table table = parser.open(filename);
+                table = parser.open(filename);
                 if (table == null) {
                     JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
                 } else {
@@ -328,6 +329,14 @@ public class Table extends Frame
                 }
                 break;
             case "Open from JSON":
+                parser = new JSONParser();
+                filename = JOptionPane.showInputDialog(this, "Enter file name");
+                table = parser.open(filename);
+                if (table == null) {
+                    JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
+                } else {
+                    dispose();
+                }
                 break;
             case "Save to CSV":
                 parser = new CSVParser();
@@ -337,6 +346,11 @@ public class Table extends Frame
                 }
                 break;
             case "Save to JSON":
+                parser = new JSONParser();
+                filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (parser.save(this, filename) != 0) {
+                    JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
+                }
                 break;
             case "NumberFormat":
                 if (currentSheet == null)
@@ -467,6 +481,5 @@ public class Table extends Frame
         // Parser parser = new CSVParser();
         // Table t = parser.open("test.csv");
         Table t = new Table();
-        // t.setTitle("test");
     }
 }
