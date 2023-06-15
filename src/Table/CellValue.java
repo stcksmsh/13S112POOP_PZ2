@@ -35,6 +35,15 @@ public class CellValue {
         return value;
     }
 
+    public void addDependent(Formula formula) {
+        if (!dependents.contains(formula))
+            dependents.add(formula);
+    }
+
+    public void clearDependent(Formula formula) {
+        dependents.remove(formula);
+    }
+
     public String getDisplayValue() {
         return displayValue;
     }
@@ -47,8 +56,9 @@ public class CellValue {
 
     /// used to notify all dependents that the CellValue has changed
     protected void notifyDependents() {
-        for (Formula formula : dependents)
-            formula.notifyDependent();
+        for (int i = 0; i < dependents.size(); i++) {
+            dependents.get(i).notifyDependent();
+        }
     }
 
     /// used to notify the CellValue that a dependent is no longer dependent on it

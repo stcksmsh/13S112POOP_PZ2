@@ -19,7 +19,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 public class Table extends Frame
@@ -189,16 +192,53 @@ public class Table extends Frame
     private void exit() {
         int input = JOptionPane.showConfirmDialog(this, "Your changes may be lost...", "Save document?",
                 JOptionPane.YES_NO_CANCEL_OPTION);
-        if (input == 0)
-            save();
+        if (input == 0) {
+            if (save() == 0)
+                System.exit(0);
+        }
         if (input == 1)
             System.exit(0);
 
     }
 
-    private void save() {
-        System.err.println("SAVING IS TO BE IMPLEMENTED");
-        System.exit(0);
+    private int save() {
+        Object[] options = { "CSV",
+                "JSON",
+                "Cancel" };
+        int n = JOptionPane.showOptionDialog(this, // parent container of JOptionPane
+                "In what format would you like to save the file?",
+                "Saving",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null, // do not use a custom Icon
+                options, // the titles of buttons
+                options[0]);// default button title
+        if (n == 0) {
+            while (true) {
+                CSVParser parser = new CSVParser();
+                String filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null)
+                    break;
+                if (parser.save(this, filename) != 0) {
+                    JOptionPane.showMessageDialog(this, "Invalid filename '" + filename + "'...");
+                } else {
+                    return 0; /// wants to exit
+                }
+            }
+        } else if (n == 1) {
+            while (true) {
+                JSONParser parser = new JSONParser();
+                String filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null)
+                    break;
+                if (parser.save(this, filename) != 0) {
+                    JOptionPane.showMessageDialog(this, "Invalid filename '" + filename + "'...");
+                } else {
+                    return 0; /// wants to exit
+                }
+            }
+        }
+        return 1;
     }
 
     public void setValue(String sheetName, String column, int row, String value, String FormatCode) {
@@ -231,15 +271,6 @@ public class Table extends Frame
         currentSheet.init();
         updateInputField();
         currentSheet.requestFocus();
-    }
-
-    private void copyTable(Table table) {
-        sheets = table.sheets;
-        currentSheet = table.currentSheet;
-        inputField = table.inputField;
-        sheetBar = table.sheetBar;
-        init();
-        table.dispose();
     }
 
     private void addSheet(String text) {
@@ -276,7 +307,9 @@ public class Table extends Frame
         String filename;
         switch (label) {
             case "New file":
-
+                Table t = new Table();
+                save();
+                dispose();
                 break;
             case "New sheet":
                 String sheetName = JOptionPane.showInputDialog("Enter sheet name...");
@@ -382,12 +415,28 @@ public class Table extends Frame
         return cell;
     }
 
-    public String getCellValue(String sheetName, String cellID) {
+    public CellValue getCellValueAndNotify(Formula source, String sheetName, String cellID) {
+        int index = sheetBar.getIndex(sheetName);
+        if (index == -1) {
+            return null;
+        }
+        return sheets.get(index).getCellValueAndNotify(source, null, cellID);
+    }
+
+    public CellValue getCellValue(String sheetName, String cellID) {
         int index = sheetBar.getIndex(sheetName);
         if (index == -1) {
             return null;
         }
         return sheets.get(index).getCellValue(null, cellID);
+    }
+
+    public String getDisplayValue(String sheetName, String cellID) {
+        int index = sheetBar.getIndex(sheetName);
+        if (index == -1) {
+            return null;
+        }
+        return sheets.get(index).getDisplayValue(null, cellID);
     }
 
     @Override

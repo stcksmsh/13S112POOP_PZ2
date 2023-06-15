@@ -56,7 +56,6 @@ public class CSVParser extends Parser {
                 if (value.equals("") && formatCode.equals("T")) {
                     continue;
                 }
-                System.err.println(String.format("%s,%s,%d,%s,%s\n", sheetName, column, row, value, formatCode));
                 bw.write(String.format("%s,%s,%d,%s,%s\n", sheetName, column, row, value, formatCode));
             }
             bw.close();

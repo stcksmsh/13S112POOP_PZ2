@@ -17,6 +17,7 @@ public class Formula extends CellValue {
     private ArrayList<CellValue> dependencies;
 
     Sheet parentSheet;
+    Cell parentCell;
 
     public Formula() {
         displayValue = "";
@@ -25,10 +26,11 @@ public class Formula extends CellValue {
         dependencies = new ArrayList<CellValue>();
     }
 
-    public Formula(CellValue cellValue, Sheet parenSheet) {
+    public Formula(CellValue cellValue, Cell parentCell) {
         displayValue = "";
         this.value = "";
-        this.parentSheet = parenSheet;
+        this.parentCell = parentCell;
+        this.parentSheet = (Sheet) parentCell.getParent();
         format = new NumberFormat(defaultPrecision);
         dependencies = new ArrayList<CellValue>();
     }
@@ -43,7 +45,10 @@ public class Formula extends CellValue {
 
     /// used to notify formula of changes in its dependencies
     public void notifyDependent() {
+        String prevDisplayValue = displayValue;
         evaluate();
+        if (!displayValue.equals(prevDisplayValue))
+            parentCell.updateLabel();
     }
 
     /// used to notify all dependencies that the formula no longer depends on them,
@@ -53,8 +58,12 @@ public class Formula extends CellValue {
             cellValue.notifyDependency(this);
     }
 
-    private String getCellValue(String sheet, String cellID) {
+    private CellValue getCellValue(String sheet, String cellID) {
         return parentSheet.getCellValue(sheet, cellID);
+    }
+
+    private CellValue getCellValueAndNotify(String sheet, String cellID) {
+        return parentSheet.getCellValueAndNotify(this, sheet, cellID);
     }
 
     private void evaluate() {
@@ -64,12 +73,19 @@ public class Formula extends CellValue {
             while (matcher.find()) {
                 String sheetName = matcher.group(1);
                 String cellID = matcher.group(2);
-                String cellValue = getCellValue(sheetName, cellID);
-                displayValue = displayValue.replace(matcher.group(), getCellValue(sheetName, cellID));
+                CellValue cellValue = getCellValueAndNotify(sheetName, cellID);
+                // String cellValue = getCellValue(sheetName, cellID);
+                String cellDisplayValue = cellValue.getDisplayValue();
+                if (cellDisplayValue.strip() == "") {
+                    throw new NullPointerException();
+                }
+                dependencies.add(cellValue);
+                displayValue = displayValue.replaceFirst(matcher.group(), cellDisplayValue);
             }
-
             displayValue = Double.toString(eval(displayValue));
         } catch (NullPointerException npe) {
+            displayValue = "=ERROR=";
+        } catch (RuntimeException re) {
             displayValue = "=ERROR=";
         }
         displayValue = format.validate(displayValue);

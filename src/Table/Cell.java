@@ -53,12 +53,17 @@ public class Cell extends Label {
         return value.getValue();
     }
 
+    public void updateLabel() {
+        setText(value.getDisplayValue());
+        unfocus();
+    }
+
     public void setValue(String text) {
         if (text.length() > 0 && text.charAt(0) == '=') {/// formula
             if (value instanceof Formula) {
                 value.setValue(text);
             } else {
-                value = new Formula(value, ((Sheet) getParent()));
+                value = new Formula(value, this);
                 value.setValue(text);
             }
         } else {
@@ -92,6 +97,15 @@ public class Cell extends Label {
         } else {
             setBackground(color);
         }
+    }
+
+    public CellValue getCellValueAndNotify(Formula source) {
+        value.addDependent(source);
+        return value;
+    }
+
+    public CellValue getCellValue() {
+        return value;
     }
 
     public CellIdentifier getCellIdentifier() {

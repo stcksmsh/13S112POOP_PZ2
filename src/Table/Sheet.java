@@ -185,11 +185,27 @@ public class Sheet extends Panel
         makeSheet();
     }
 
-    public String getCellValue(String sheetName, String cellID) {
+    public CellValue getCellValueAndNotify(Formula source, String sheetName, String cellID) {
+        if (sheetName == null) {
+            return cells.get(new CellIdentifier(cellID)).getCellValueAndNotify(source);
+        } else {
+            return ((Table) getParent()).getCellValueAndNotify(source, sheetName, cellID);
+        }
+    }
+
+    public CellValue getCellValue(String sheetName, String cellID) {
+        if (sheetName == null) {
+            return cells.get(new CellIdentifier(cellID)).getCellValue();
+        } else {
+            return ((Table) getParent()).getCellValue(sheetName, cellID);
+        }
+    }
+
+    public String getDisplayValue(String sheetName, String cellID) {
         if (sheetName == null) {
             return cells.get(new CellIdentifier(cellID)).getDisplayValue();
         } else {
-            return ((Table) getParent()).getCellValue(sheetName, cellID);
+            return ((Table) getParent()).getDisplayValue(sheetName, cellID);
         }
     }
 
