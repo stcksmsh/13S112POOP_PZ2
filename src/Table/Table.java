@@ -37,6 +37,7 @@ public class Table extends Frame
     private SheetBar sheetBar;
 
     public Table() {
+        super("OSCalc");
         setLayout(new BorderLayout());
         /// initialize sheet array
         sheets = new ArrayList<Sheet>();
