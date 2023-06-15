@@ -124,6 +124,10 @@ public class Table extends Frame
                 fileSave.add(fileSaveJSON);
                 fileSaveJSON.addActionListener(this);
             }
+
+            MenuItem exitFile = new MenuItem("Exit", new MenuShortcut(KeyEvent.VK_Q));
+            file.add(exitFile);
+            exitFile.addActionListener(this);
         }
 
         Menu edit = new Menu("Edit");
@@ -434,6 +438,9 @@ public class Table extends Frame
             case "TextFormat":
                 currentSheet.setFormat(new TextFormat());
                 updateInputField();
+                break;
+            case "Exit":
+                exit();
                 break;
             default:
                 System.err.print("Unknown action: ");

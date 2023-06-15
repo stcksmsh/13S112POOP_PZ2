@@ -19,6 +19,13 @@ public class Formula extends CellValue {
     Sheet parentSheet;
     Cell parentCell;
 
+    /// captures ([SHEETNAME]:)[COLUMN][ROW]
+    private static Pattern cellPattern = Pattern.compile("(?:([a-zA-Z0-9]*):)?([A-Z]+[0-9]+)");
+
+    /// captures FUNCTION((([SHEETNAME]:[COLUMN1][ROW1]:[COLUMN2][ROW2])))
+    private static Pattern functionPattern = Pattern
+            .compile("(?:([A-Z]+)\\((?:([A-Za-z0-9]+):)?([A-Z]+)([0-9]+):([A-Z]+)([0-9]+)\\))");
+
     public Formula() {
         displayValue = "";
         value = "";
@@ -62,26 +69,76 @@ public class Formula extends CellValue {
         return parentSheet.getCellValue(sheet, cellID);
     }
 
-    private CellValue getCellValueAndNotify(String sheet, String cellID) {
+    public CellValue getCellValueAndNotify(String sheet, String cellID) {
         return parentSheet.getCellValueAndNotify(this, sheet, cellID);
+    }
+
+    /// replaces all instances of cell references (e.g. A1) with their respective
+    /// values (displayValues)
+    public static String populateCellValues(Formula formula, String expression) {
+        Matcher matcher = cellPattern.matcher(expression);
+        while (matcher.find()) {
+            String sheetName = matcher.group(1);
+            String cellID = matcher.group(2);
+            CellValue cellValue = formula.getCellValueAndNotify(sheetName, cellID);
+            // String cellValue = getCellValue(sheetName, cellID);
+            String cellDisplayValue = cellValue.getDisplayValue();
+            if (cellDisplayValue.strip() == "") {
+                throw new NullPointerException();
+            }
+            /// add the dependency
+            formula.dependencies.add(cellValue);
+            expression = expression.replaceFirst(matcher.group(), cellDisplayValue);
+        }
+        return expression;
+    }
+
+    /// evaluates the more complex multi-argument functions in a string
+    /// (MAX, MIN, ...)
+    public static String evaluateComplexFunctions(Formula formula, String expression) {
+        Matcher matcher = functionPattern.matcher(expression);
+        while (matcher.find()) {
+            String function = matcher.group(1);
+            String sheetName = matcher.group(2);
+            String column1 = matcher.group(3);
+            int row1 = Integer.parseInt(matcher.group(4));
+            String column2 = matcher.group(5);
+            int row2 = Integer.parseInt(matcher.group(6));
+            expression = expression.replace(matcher.group(),
+                    functionHandler(formula, function, sheetName, column1, row1, column2, row2));
+        }
+        return expression;
+    }
+
+    public static String functionHandler(Formula formula, String function, String sheetName, String column1, int row1,
+            String column2, int row2) {
+        String result = "";
+        switch (function) {
+            case "MAX":
+                result = SheetFunctions.MAX(formula, sheetName, column1, row1, column2, row2);
+                break;
+            default:
+                return "=ERROR=";
+        }
+
+        return result;
     }
 
     private void evaluate() {
         try {
+            /// remove the '=' at the beginning of a formula
             displayValue = value.substring(1);
-            Matcher matcher = Pattern.compile("(?:([a-zA-Z0-9]*):)?([A-Z]+[0-9]+)").matcher(value);
-            while (matcher.find()) {
-                String sheetName = matcher.group(1);
-                String cellID = matcher.group(2);
-                CellValue cellValue = getCellValueAndNotify(sheetName, cellID);
-                // String cellValue = getCellValue(sheetName, cellID);
-                String cellDisplayValue = cellValue.getDisplayValue();
-                if (cellDisplayValue.strip() == "") {
-                    throw new NullPointerException();
-                }
-                dependencies.add(cellValue);
-                displayValue = displayValue.replaceFirst(matcher.group(), cellDisplayValue);
+
+            /// remove all dependencies
+            for (CellValue cellValue : dependencies) {
+                cellValue.clearDependent(this);
             }
+            dependencies.clear();
+
+            displayValue = evaluateComplexFunctions(this, displayValue);
+
+            displayValue = populateCellValues(this, displayValue);
+
             displayValue = Double.toString(eval(displayValue));
         } catch (NullPointerException npe) {
             displayValue = "=ERROR=";
