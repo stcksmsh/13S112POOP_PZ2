@@ -101,9 +101,6 @@ public class Table extends Frame
                 MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
                 mnew.add(newFile);
                 newFile.addActionListener(this);
-                MenuItem newSheet = new MenuItem("New sheet", new MenuShortcut(KeyEvent.VK_N, true));
-                mnew.add(newSheet);
-                newSheet.addActionListener(this);
             }
 
             {
@@ -132,17 +129,27 @@ public class Table extends Frame
         Menu edit = new Menu("Edit");
         {
             menuBar.add(edit);
-            {
-                MenuItem undoEdit = new MenuItem("Undo", new MenuShortcut(KeyEvent.VK_Z));
-                edit.add(undoEdit);
-                undoEdit.addActionListener(this);
-            }
 
             {
-                MenuItem redoEdit = new MenuItem("Redo", new MenuShortcut(KeyEvent.VK_Y));
-                edit.add(redoEdit);
-                redoEdit.addActionListener(this);
+                Menu editSheet = new Menu("Sheet");
+                edit.add(editSheet);
+
+                MenuItem editSheetNew = new MenuItem("New sheet", new MenuShortcut(KeyEvent.VK_T));
+                editSheet.add(editSheetNew);
+                editSheetNew.addActionListener(this);
+
+                MenuItem editSheetDelete = new MenuItem("Delete sheet", new MenuShortcut(KeyEvent.VK_W));
+                editSheet.add(editSheetDelete);
+                editSheetDelete.addActionListener(this);
             }
+            MenuItem undoEdit = new MenuItem("Undo", new MenuShortcut(KeyEvent.VK_Z));
+            edit.add(undoEdit);
+            undoEdit.addActionListener(this);
+
+            MenuItem redoEdit = new MenuItem("Redo", new MenuShortcut(KeyEvent.VK_Y));
+            edit.add(redoEdit);
+            redoEdit.addActionListener(this);
+
         }
 
         Menu format = new Menu("Format");
@@ -226,6 +233,7 @@ public class Table extends Frame
     private int save() {
         Object[] options = { "CSV",
                 "JSON",
+                "Don't save",
                 "Cancel" };
         int n = JOptionPane.showOptionDialog(this, // parent container of JOptionPane
                 "In what format would you like to save the file?",
@@ -259,6 +267,8 @@ public class Table extends Frame
                     return 0; /// wants to exit
                 }
             }
+        } else if (n == 2) {
+            return 0;
         }
         return 1;
     }
@@ -270,6 +280,18 @@ public class Table extends Frame
             index = sheets.size() - 1;
         }
         sheets.get(index).setValue(column, row, value, FormatCode);
+    }
+
+    private void deleteSheet() {
+        int index = sheets.indexOf(currentSheet);
+        sheets.remove(index);
+        sheetBar.remove(index);
+        remove(currentSheet);
+        if (index == sheets.size()) {
+            index--;
+        }
+        currentSheet = null;
+        changeSheet(index);
     }
 
     public void init() {
@@ -331,13 +353,24 @@ public class Table extends Frame
         switch (label) {
             case "New file":
                 Table t = new Table();
-                save();
-                dispose();
+                if (save() == 0)
+                    dispose();
+                else
+                    t.dispose();
                 break;
             case "New sheet":
                 String sheetName = JOptionPane.showInputDialog("Enter sheet name...");
                 if (sheetName != null && !sheetName.equals("")) {
                     addSheet(sheetName);
+                }
+                break;
+            case "Delete sheet":
+                if (sheets.size() > 0) {
+                    int choice = JOptionPane.showConfirmDialog(this, "Delete sheet", "Really delete sheet",
+                            JOptionPane.YES_NO_OPTION);
+                    if (choice == 0) {
+                        deleteSheet();
+                    }
                 }
                 break;
             case "Undo":
@@ -369,6 +402,8 @@ public class Table extends Frame
             case "Save to CSV":
                 parser = new CSVParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null)
+                    return;
                 if (parser.save(this, filename) != 0) {
                     JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
                 }
@@ -376,6 +411,8 @@ public class Table extends Frame
             case "Save to JSON":
                 parser = new JSONParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null)
+                    return;
                 if (parser.save(this, filename) != 0) {
                     JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
                 }

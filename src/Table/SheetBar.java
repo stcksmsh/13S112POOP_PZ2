@@ -24,6 +24,17 @@ public class SheetBar extends Panel implements MouseListener {
 
     }
 
+    @Override
+    public void remove(int index) {
+        super.remove(index);
+        labels.remove(index);
+        if (index == labels.size() - 1 && labels.size() > 1)
+            index--;
+        currentLabel = labels.get(index);
+        currentLabel.setBackground(Color.GRAY);
+        revalidate();
+    }
+
     public String get(int index) {
         return labels.get(index).getText();
     }
