@@ -1,5 +1,5 @@
 
-![Logo](./icons/logo.ico)
+![Logo](./bin/icons/logo.ico)
 
 ## Open source spreadsheet made in Java AWT
 
