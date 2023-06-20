@@ -1,5 +1,5 @@
 
-![Logo](https://i.ibb.co/bP4Z7Hj/logo.png)
+![Logo](./icons/logo.ico)
 
 ## Open source spreadsheet made in Java AWT
 

@@ -12,7 +12,7 @@ $(BIN) : $(SRC)
 	javac -d $(BINDIR) $(SRCDIR)/**/*.java
 
 jar: $(BIN) $(MANIFEST)
-	jar cmf $(MANIFEST) $(NAME) $(BIN)
+	jar cmf $(MANIFEST) $(NAME) $(BINDIR)/**
 
 $(MANIFEST):
 	@echo "Manifest-Version: 1.0" > $(MANIFEST)

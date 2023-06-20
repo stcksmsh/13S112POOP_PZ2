@@ -1,13 +1,14 @@
 package Table;
 
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.Label;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -19,10 +20,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 public class Table extends Frame
@@ -38,6 +37,11 @@ public class Table extends Frame
 
     public Table() {
         super("OSCalc");
+
+        /// set icon image
+        Image icon = Toolkit.getDefaultToolkit().getImage("./bin/icons/logo.png");
+        setIconImage(icon);
+
         setLayout(new BorderLayout());
         /// initialize sheet array
         sheets = new ArrayList<Sheet>();
