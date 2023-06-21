@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="1024"
-   height="1024"
-   viewBox="0 0 1024 1024"
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
    version="1.1"
    id="svg5"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
@@ -27,9 +27,9 @@
      inkscape:document-units="px"
      showgrid="false"
      showguides="false"
-     inkscape:zoom="0.52188888"
-     inkscape:cx="523.09986"
-     inkscape:cy="610.28317"
+     inkscape:zoom="1.1159276"
+     inkscape:cx="-87.819317"
+     inkscape:cy="260.32155"
      inkscape:window-width="1862"
      inkscape:window-height="1016"
      inkscape:window-x="0"
@@ -45,7 +45,7 @@
      style="display:inline">
     <g
        id="g13696"
-       transform="matrix(1.7525885,0,0,1.7525885,48.565634,-6.7790752)">
+       transform="matrix(1.462801,0,0,1.462801,-130.80629,-89.616972)">
       <g
          id="g13618"
          style="display:inline">
@@ -144,16 +144,5 @@
         </g>
       </g>
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:160.122px;fill:#50585c;fill-opacity:1;stroke:#50585c;stroke-width:13.2447;stroke-miterlimit:4;stroke-dasharray:none"
-       x="100.16277"
-       y="892.44708"
-       id="text1818"><tspan
-         id="tspan1816"
-         x="100.16277"
-         y="892.44708"
-         sodipodi:role="line"
-         style="fill:#50585c;fill-opacity:1;stroke-width:13.2447;stroke-miterlimit:4;stroke-dasharray:none">O S C a l c</tspan></text>
   </g>
 </svg>
