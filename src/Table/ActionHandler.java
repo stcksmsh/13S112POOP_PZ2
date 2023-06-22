@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class ActionHandler extends ArrayList<Action> {
     private Table table;
     private int index = -1;
+    private static final int maximumActions = 100; /// maximum number of actions that can be remembered
 
     public ActionHandler(Table table) {
         super();
@@ -21,9 +22,15 @@ public class ActionHandler extends ArrayList<Action> {
         ;
         Action newAction = new Action(sheetName, oldValue, newValue, cell.getCellIdentifier().getColumn(),
                 cell.getCellIdentifier().getRow(), cell.getFormatCode());
-        if (previousAction == null || !newAction.equals(previousAction))
+        if (previousAction == null || !newAction.equals(previousAction)) {
+            if (super.size() == maximumActions) {
+                super.remove(0); /// remove the oldest before adding the newest
+                index--; /// decrement the already incremented index
+            }
             return super.add(new Action(sheetName, oldValue, newValue, cell.getCellIdentifier().getColumn(),
                     cell.getCellIdentifier().getRow(), cell.getFormatCode())); /// add the new action
+
+        }
         return false;
     }
 

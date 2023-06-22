@@ -5,13 +5,17 @@ BIN = $(patsubst $(SRCDIR)/%.java, $(BINDIR)/%.class, $(SRC))
 PROGRAM = Table.Table
 NAME = OSCalc.jar
 MANIFEST = manifest.txt
-all : $(BIN)
+ICON = ./bin/ico
+
+build: $(BIN)
+
+run: build
 	(cd $(BINDIR) && java $(PROGRAM))
 
 $(BIN) : $(SRC)
 	javac -d $(BINDIR) $(SRCDIR)/**/*.java
 
-jar: $(BIN) $(MANIFEST)
+jar: build $(MANIFEST) 
 	jar cmf $(MANIFEST) $(NAME) $(BINDIR)/**
 
 $(MANIFEST):
@@ -21,6 +25,8 @@ $(MANIFEST):
 	@echo "" >> $(MANIFEST)
 
 clean:
-	rm -rdf $(BINDIR)/*
+	rm -f $(BINDIR)/**/*.class
+	rm -f $(BINDIR)/**/*.csv
+	rm -f $(BINDIR)/**/*.json
 	rm -f $(NAME)
 	rm -f manifext.txt

@@ -12,7 +12,7 @@ public class DateFormat extends Format {
 
     @Override
     public String validate(String text) {
-        Pattern pattern = Pattern.compile("^(\\d{2})\\.(\\d{2})\\.(\\d{4})$");
+        Pattern pattern = Pattern.compile("^(\\d{1,2})\\.(\\d{1,2})\\.([1-9]\\d*)$");
         Matcher matcher = pattern.matcher(text);
         if (!matcher.find()) {
             return "=ERROR=";

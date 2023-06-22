@@ -28,7 +28,10 @@ public class Table extends Frame
         implements KeyListener, ActionListener, MouseListener, Iterable<AbstractMap.SimpleEntry<String, Cell>> {
 
     private ArrayList<Sheet> sheets;
-    Sheet currentSheet = null;
+    private Sheet currentSheet = null;
+
+    private String copiedText = null;
+    private Format copiedFormat = null;
 
     private ActionHandler actionHandler;
 
@@ -39,7 +42,7 @@ public class Table extends Frame
         super("OSCalc");
 
         /// set icon image
-        Image icon = Toolkit.getDefaultToolkit().getImage("./bin/icons/icon.png");
+        Image icon = Toolkit.getDefaultToolkit().getImage("./bin/images/icon.png");
         setIconImage(icon);
 
         setLayout(new BorderLayout());
@@ -100,13 +103,9 @@ public class Table extends Frame
         {
             menuBar.add(file);
 
-            {
-                Menu mnew = new Menu("New");
-                file.add(mnew);
-                MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
-                mnew.add(newFile);
-                newFile.addActionListener(this);
-            }
+            MenuItem newFile = new MenuItem("New file", new MenuShortcut(KeyEvent.VK_N));
+            file.add(newFile);
+            newFile.addActionListener(this);
 
             {
                 Menu fileOpen = new Menu("Open");
@@ -129,6 +128,8 @@ public class Table extends Frame
                 fileSave.add(fileSaveJSON);
                 fileSaveJSON.addActionListener(this);
             }
+
+            file.addSeparator();
 
             MenuItem exitFile = new MenuItem("Exit", new MenuShortcut(KeyEvent.VK_Q));
             file.add(exitFile);
@@ -158,6 +159,24 @@ public class Table extends Frame
             MenuItem redoEdit = new MenuItem("Redo", new MenuShortcut(KeyEvent.VK_Y));
             edit.add(redoEdit);
             redoEdit.addActionListener(this);
+
+            edit.addSeparator();
+
+            MenuItem cutEdit = new MenuItem("Cut", new MenuShortcut(KeyEvent.VK_X));
+            edit.add(cutEdit);
+            cutEdit.addActionListener(this);
+
+            MenuItem copyEdit = new MenuItem("Copy", new MenuShortcut(KeyEvent.VK_C));
+            edit.add(copyEdit);
+            copyEdit.addActionListener(this);
+
+            MenuItem pasteEdit = new MenuItem("Paste", new MenuShortcut(KeyEvent.VK_V));
+            edit.add(pasteEdit);
+            pasteEdit.addActionListener(this);
+
+            MenuItem pasteNoFormatEdit = new MenuItem("Paste unformatted text", new MenuShortcut(KeyEvent.VK_V, true));
+            edit.add(pasteNoFormatEdit);
+            pasteNoFormatEdit.addActionListener(this);
 
         }
 
@@ -387,6 +406,49 @@ public class Table extends Frame
                 break;
             case "Redo":
                 actionHandler.redo();
+                break;
+            case "Cut":
+                if (currentSheet != null) {
+                    Cell copiedCell = currentSheet.getFocusedCell();
+
+                    copiedText = copiedCell.getValue();
+                    copiedFormat = new TextFormat();
+                    String formatCode = copiedCell.getFormatCode();
+
+                    if (formatCode.charAt(0) == 'D') {
+                        copiedFormat = new DateFormat();
+                    } else if (formatCode.charAt(0) == 'N') {
+                        copiedFormat = new NumberFormat(Integer.parseInt(formatCode.substring(1)));
+                    }
+
+                    currentSheet.setText("");
+                    currentSheet.setFormat(new TextFormat());
+                }
+                break;
+            case "Copy":
+                if (currentSheet != null) {
+                    Cell copiedCell = currentSheet.getFocusedCell();
+
+                    copiedText = copiedCell.getValue();
+                    copiedFormat = new TextFormat();
+                    String formatCode = copiedCell.getFormatCode();
+
+                    if (formatCode.charAt(0) == 'D') {
+                        copiedFormat = new DateFormat();
+                    } else if (formatCode.charAt(0) == 'N') {
+                        copiedFormat = new NumberFormat(Integer.parseInt(formatCode.substring(1)));
+                    }
+                }
+                break;
+            case "Paste":
+                if (currentSheet != null && copiedText != null && copiedFormat != null) {
+                    currentSheet.setText(copiedText);
+                    currentSheet.setFormat(copiedFormat);
+                }
+                break;
+            case "Paste unformatted text":
+                if (currentSheet != null && copiedText != null)
+                    currentSheet.setText(copiedText);
                 break;
             case "Open from CSV":
                 parser = new CSVParser();

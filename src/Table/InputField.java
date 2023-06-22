@@ -19,7 +19,7 @@ public class InputField extends Panel {
         cellID = new Label("          ");
         value = new TextField();
         /// same as cellID
-        format = new Label("                        ");
+        format = new Label("          ");
         setLayout(new BorderLayout(10, 10));
 
         cellID.setBackground(Color.GRAY);
@@ -52,14 +52,15 @@ public class InputField extends Panel {
         value.setText(cell.getValue());
         switch (cell.getFormatCode().charAt(0)) {
             case 'T':
-                this.format.setText(String.format("%14s  ", "TextFormat"));
+                this.format.setText("   Text   ");
                 break;
             case 'N':
-                this.format.setText(String.format("%14s  ", "NumberFormat"));
+                this.format.setText("  Number  ");
                 break;
             case 'D':
-                this.format.setText(String.format("%14s  ", "DataFormat"));
+                this.format.setText("   Date   ");
                 break;
         }
+        revalidate();
     }
 }
