@@ -1,18 +1,23 @@
 package Table;
 
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Iterator;
+import JSON.JSONObject;
 
 public class JSONParser extends Parser {
     @Override
     public int save(Table table, String filename) {
         try {
             FileWriter file = new FileWriter(filename);
-            BufferedWriter bw = new BufferedWriter(file);
             String currentSheetName = null;
-            bw.write("{\"table\":{");
+            JSONObject json = new JSONObject();
+            JSONObject tableJSON = new JSONObject();
+            json.add("table", tableJSON);
+            JSONObject sheetJSON = null;
             for (AbstractMap.SimpleEntry<String, Cell> entry : table) {
                 Cell cell = entry.getValue();
                 String sheetName = entry.getKey();
@@ -23,20 +28,19 @@ public class JSONParser extends Parser {
                 if (value.equals("") && formatCode.equals("T")) {
                     continue;
                 }
-                if (currentSheetName == null) {
+                JSONObject cellJSON = new JSONObject();
+                cellJSON.add("row", row);
+                cellJSON.add("column", column);
+                cellJSON.add("value", value);
+                cellJSON.add("formatCode", formatCode);
+                if (currentSheetName == null || !currentSheetName.equals(sheetName)) {
                     currentSheetName = sheetName;
-                    bw.write(String.format("\"%s\":[", currentSheetName));
-                } else if (!currentSheetName.equals(sheetName)) {
-                    bw.write(String.format("],\"%s\":[", currentSheetName));
-                } else {
-                    bw.write(",");
+                    sheetJSON = new JSONObject();
+                    tableJSON.add(sheetName, sheetJSON);
                 }
-
-                bw.write(String.format("{\"row\":\"%s\",\"column\":%d,\"value\":\"%s\",\"formatCode\":\"%s\"}", column,
-                        row, value, formatCode));
+                sheetJSON.add(cellJSON);
             }
-            bw.write("]}}");
-            bw.close();
+            file.write(json.toString());
             file.close();
         } catch (IOException IOe) {
             return -1;
@@ -46,6 +50,28 @@ public class JSONParser extends Parser {
 
     @Override
     public Table open(String filename) {
-        return null;
+        Table table = new Table();
+        try {
+            String data = Files.readString(Path.of(filename));
+            JSONObject obj = JSONObject.parseString(data).get("table");
+            Iterator<String> keys = obj.keys();
+            while (keys.hasNext()) {
+                String sheetName = keys.next();
+                Iterator<JSONObject> cells = obj.get(sheetName).values();
+                while (cells.hasNext()) {
+                    JSONObject cell = cells.next();
+                    String column = (String) cell.get("column").getValue();
+                    int row = ((Integer) cell.get("row").getValue()).intValue();
+                    String value = (String) cell.get("value").getValue();
+                    String formatCode = (String) cell.get("formatCode").getValue();
+                    table.setValue(sheetName, column, row, value, formatCode);
+                }
+            }
+            table.init();
+        } catch (IOException ioe) {
+            return null;
+        }
+
+        return table;
     }
 }

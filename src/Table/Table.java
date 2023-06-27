@@ -453,6 +453,8 @@ public class Table extends Frame
             case "Open from CSV":
                 parser = new CSVParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null) /// left dialog
+                    return;
                 table = parser.open(filename);
                 if (table == null) {
                     JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
@@ -463,6 +465,8 @@ public class Table extends Frame
             case "Open from JSON":
                 parser = new JSONParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
+                if (filename == null) /// left dialog
+                    return;
                 table = parser.open(filename);
                 if (table == null) {
                     JOptionPane.showMessageDialog(this, "No such file '" + filename + "'!!!");
