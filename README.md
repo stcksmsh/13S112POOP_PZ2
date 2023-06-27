@@ -23,6 +23,8 @@ A simple spreadsheet program made using (mostly) Java's AWT package for the GUI.
 - CSV and JSON save formats
 - Cross platform
 
+### I'm using my own [JSOpeN]() library for JSON parsing
+
 ---
 
 This work is licensed under a
@@ -32,7 +34,7 @@ This work is licensed under a
 
 [logo]: ./bin/images/logo.png
 [language-shield]: https://img.shields.io/badge/Language-Java-f89820?style=for-the-badge
-[lineCount-shield]: https://img.shields.io/badge/Lines-2k-red?style=for-the-badge
+[lineCount-shield]: https://img.shields.io/badge/Lines-2.5k-red?style=for-the-badge
 [linkedin-shield]: https://img.shields.io/badge/Linkedin-Kosta_Vukicevic-0072b1?style=for-the-badge
 [cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
 [cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png

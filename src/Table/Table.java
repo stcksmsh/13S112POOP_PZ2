@@ -465,7 +465,7 @@ public class Table extends Frame
             case "Open from JSON":
                 parser = new JSONParser();
                 filename = JOptionPane.showInputDialog(this, "Enter file name");
-                if (filename == null) /// left dialog
+                if (filename == null) /// left dialoggit
                     return;
                 table = parser.open(filename);
                 if (table == null) {
