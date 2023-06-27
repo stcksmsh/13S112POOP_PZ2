@@ -42,7 +42,7 @@ public class Table extends Frame
         super("OSCalc");
 
         /// set icon image
-        Image icon = Toolkit.getDefaultToolkit().getImage("./bin/images/icon.png");
+        Image icon = Toolkit.getDefaultToolkit().getImage("./images/icon.png");
         setIconImage(icon);
 
         setLayout(new BorderLayout());

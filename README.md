@@ -1,5 +1,5 @@
 ![Logo][logo]
-[![Language][language-shield]](https://www.java.com/)   ![LineCount][lineCount-shield]   [![Linkedin][linkedin-shield]](https://www.linkedin.com/in/kostavukicevic/)   [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]](http://creativecommons.org/licenses/by-nc-sa/4.0/)
+   ![LineCount][lineCount-shield]
 
 # Open source spreadsheet program made with Java AWT
 
@@ -29,9 +29,7 @@ A simple spreadsheet program made using (mostly) Java's AWT package for the GUI.
 This work is licensed under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
 
-[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]](http://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-[logo]: ./bin/images/logo.png
+[logo]: ./images/logo.png
 [language-shield]: https://img.shields.io/badge/Language-Java-f89820?style=for-the-badge
 [lineCount-shield]: https://img.shields.io/badge/Lines-2.5k-red?style=for-the-badge
 [linkedin-shield]: https://img.shields.io/badge/Linkedin-Kosta_Vukicevic-0072b1?style=for-the-badge

@@ -5,7 +5,7 @@ BIN = $(patsubst $(SRCDIR)/%.java, $(BINDIR)/%.class, $(SRC))
 PROGRAM = Table.Table
 NAME = OSCalc.jar
 MANIFEST = manifest.txt
-ICON = ./bin/ico
+IMGDIR = images
 
 build: $(BIN)
 
@@ -16,7 +16,7 @@ $(BIN) : $(SRC)
 	javac -d $(BINDIR) $(SRCDIR)/**/*.java
 
 jar: build $(MANIFEST) 
-	jar cmf $(MANIFEST) $(NAME) $(BINDIR)/**
+	jar cmf $(MANIFEST) $(NAME) $(BINDIR)/** $(IMGDIR)/**
 
 $(MANIFEST):
 	@echo "Manifest-Version: 1.0" > $(MANIFEST)
