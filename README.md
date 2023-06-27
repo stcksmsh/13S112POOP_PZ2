@@ -1,7 +1,6 @@
 ![Logo][logo]
 [![Language][language-shield]](https://www.java.com/)   ![LineCount][lineCount-shield]   [![Linkedin][linkedin-shield]](https://www.linkedin.com/in/kostavukicevic/)   [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-
 # Open source spreadsheet program made with Java AWT
 
 ## Description
@@ -23,7 +22,7 @@ A simple spreadsheet program made using (mostly) Java's AWT package for the GUI.
 - CSV and JSON save formats
 - Cross platform
 
-### I'm using my own [JSOpeN]() library for JSON parsing
+#### I'm using my own [JSOpeN](https://github.com/stcksmsh/JSOpeN) library for JSON parsing
 
 ---
 
