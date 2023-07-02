@@ -37,6 +37,11 @@ public class JSONObject {
      * 'N' - Null
      */
     private char type;
+    /**
+     * The string used for indentation in {@link JSONObject#toBeautifulString(int)
+     * toBeautifulString}
+     */
+    private static final String indent = "  ";
 
     /**
      * Creates a new JSONObject of type 'U'
@@ -307,28 +312,28 @@ public class JSONObject {
                     index = stringEnd;
                 } else if (currentChar == 'f' || currentChar == 't') { /// boolean
                     type = 'B';
-                    if (index + 4 > string.length()) {
+                    if (index + 4 > string.length())
                         throw new JSONException(index, string);
-                    }
                     String value = string.substring(index, index + 4);
                     if (value.equals("true")) {
                         currentContainer.setValue(true);
-                        index += 4;
+                        index += 3;
                     } else if (value.equals("fals")) {
                         index += 4;
                         if (index >= string.length() || string.charAt(index) != 'e')
                             throw new JSONException(index, string);
                         currentContainer.setValue(false);
-                        index++;
                     } else {
                         throw new JSONException(index, string);
                     }
                 } else if (currentChar == 'n') { /// nulll
                     type = 'N';
-                    if (index + 4 < string.length() || !string.substring(index, index + 4).equals("null")) {
+                    if (index + 4 >= string.length() || !string.substring(index, index + 4).equals("null")) {
+                        System.err.println(string.length());
                         throw new JSONException(index, string);
                     }
                     currentContainer.setNull();
+                    index += 3;
                 } else {
                     throw new JSONException(index, string);
                 }
@@ -511,7 +516,7 @@ public class JSONObject {
                 sb.append((Boolean) value);
                 break;
             case 'N':
-                sb.append("NULL");
+                sb.append("null");
                 break;
             case 'A':
                 sb.append('[');
@@ -543,6 +548,68 @@ public class JSONObject {
     }
 
     /**
+     * @param indentCount the initial indent count, should be 0
+     * @return an indented and formatted JSON string
+     */
+    public String toBeautifulString(int indentCount) {
+        StringBuilder sb = new StringBuilder("");
+        switch (type) {
+            case 'I':
+                sb.append((Integer) value);
+                break;
+            case 'D':
+                sb.append((Double) value);
+                break;
+            case 'S':
+                sb.append('"');
+                sb.append((String) value);
+                sb.append('"');
+                break;
+            case 'B':
+                sb.append((Boolean) value);
+                break;
+            case 'N':
+                sb.append("null");
+                break;
+            case 'A':
+                sb.append("[\n");
+                for (JSONObject obj : values) {
+                    for (int i = 0; i < indentCount + 1; i++)
+                        sb.append(indent);
+                    sb.append(obj.toBeautifulString(indentCount + 1));
+                    sb.append(",\n");
+                }
+                if (sb.length() > 2)
+                    sb.deleteCharAt(sb.length() - 2);
+                for (int j = 0; j < indentCount; j++)
+                    sb.append(indent);
+                sb.append(']');
+                break;
+            case 'M':
+                sb.append("{\n");
+                for (int i = 0; i < names.size(); i++) {
+                    for (int j = 0; j < indentCount + 1; j++)
+                        sb.append(indent);
+                    sb.append('"');
+                    sb.append(names.get(i));
+                    sb.append("\": ");
+                    sb.append(values.get(i).toBeautifulString(indentCount + 1));
+                    sb.append(",\n");
+                }
+                if (sb.length() > 2)
+                    sb.deleteCharAt(sb.length() - 2);
+                for (int j = 0; j < indentCount; j++)
+                    sb.append(indent);
+                sb.append('}');
+                break;
+            default:
+                throw new JSONException("Error: invalid JSONObjecttype '" + type + "' encountered");
+        }
+        return sb.toString();
+
+    }
+
+    /**
      * Adds a value to the JSONObject, meant to be used on objects of type 'A'
      * special case when used on objects of type 'M', it will set the last
      * name\value pairs value, this is used in {@link JSONObject#parseString(String)
@@ -552,7 +619,7 @@ public class JSONObject {
      * @throws JSONException if the JSONObject is not of type 'A', 'M'
      */
     public void add(JSONObject value) {
-        if (type != 'A' && type != 'M' && type != 'U') /// it is not an array or NULL
+        if (type != 'A' && type != 'M' && type != 'U')
             throw new JSONException("Error: JSONObject is not of type array");
 
         if (type == 'U')
@@ -699,8 +766,13 @@ public class JSONObject {
     }
 
     public static void main(String[] args) {
-        String str = new String("[{\"a\":[1, 2], \"abc\":12}, \"test\"]");
+        String str = new String("""
+                   [{\"a\":[1, 2], \"abc\"
+                   :   12},    \"test\", \"test\", 12,
+                null, 1123, false]""");
         JSONObject obj = JSONObject.parseString(str);
+        System.out.println(obj.toBeautifulString(0));
+        System.out.println("----------------------------");
         System.out.println(obj);
         System.out.println(obj.get(0).get("a").get(0));
         System.out.println(obj.get(0).get("a").get(1));

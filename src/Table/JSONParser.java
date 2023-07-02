@@ -40,9 +40,10 @@ public class JSONParser extends Parser {
                 }
                 sheetJSON.add(cellJSON);
             }
-            file.write(json.toString());
+            file.write(json.toBeautifulString(0));
             file.close();
         } catch (IOException IOe) {
+            IOe.printStackTrace();
             return -1;
         }
         return 0;
