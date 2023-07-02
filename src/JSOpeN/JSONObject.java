@@ -1,119 +1,239 @@
-package JSON;
+package JSOpeN;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
+/**
+ * @author Kosta Vukicevic
+ * @version v0.1-alpha
+ */
 public class JSONObject {
 
-    private List<String> keys;
+    /**
+     * List of names in the JSONObject, if it is an array or a value, it will be
+     * null
+     */
+    private List<String> names;
+    /**
+     * List of values in the JSONObject, if it is a value it will be null
+     */
     private List<JSONObject> values;
+    /**
+     * The value of the JSONObject, if it is an array or map, will be null
+     */
     private Object value;
+    /**
+     * The type of the JSONObject, it may be:
+     * 'U' - Undefined
+     * 'M' - Map, a collection of name/value pairs
+     * 'A' - Array, an ordered list of values
+     * 'I' - Integer
+     * 'D' - Double
+     * 'S' - String
+     * 'B' - Boolean
+     * 'N' - Null
+     */
     private char type;
 
+    /**
+     * Creates a new JSONObject of type 'U'
+     */
     public JSONObject() {
         super();
-        keys = null;
+        names = null;
         values = null;
         type = 'U'; /// Undefined object
         value = null;
     }
 
+    /**
+     * Creates a new JSONObject of type 'I'
+     * 
+     * @param i the value of the new JSONObject
+     */
     public JSONObject(int i) {
         this();
         setValue(i);
     }
 
+    /**
+     * Creates a new JSONObject of type 'D'
+     * 
+     * @param d the value of the new JSONObject
+     */
     public JSONObject(double d) {
         this();
         setValue(d);
     }
 
+    /**
+     * Creates a new JSONObject of type 'S'
+     * 
+     * @param s the value of the new JSONObject
+     */
     public JSONObject(String s) {
         this();
         setValue(s);
     }
 
+    /**
+     * Creates a new JSONObject of type 'B'
+     * 
+     * @param b the value of the new JSONObject
+     */
     public JSONObject(boolean b) {
         this();
         setValue(b);
     }
 
+    /**
+     * Creates a new JSONObject of type 'N'
+     * 
+     * @return a null JSONObject
+     */
+    public static JSONObject nullObject() {
+        JSONObject nullObject = new JSONObject();
+        nullObject.type = 'N';
+        return nullObject;
+    }
+
+    /**
+     * @param i the new value of the JSONObject
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public void setValue(int i) {
-        if (type != 'D' && type != 'U')
+        if (type == 'M' || type == 'A')
             throw new JSONException("Error: cannot assign value of type 'I' to JSONObject of type '" + type + "'");
         value = Integer.valueOf(i);
         type = 'I';
     }
 
+    /**
+     * @param d the new value of the JSONObject
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public void setValue(double d) {
-        if (type != 'D' && type != 'U')
+        if (type == 'M' || type == 'A')
             throw new JSONException("Error: cannot assign value of type 'D' to JSONObject of type '" + type + "'");
         value = Double.valueOf(d);
         type = 'D';
     }
 
+    /**
+     * @param s the new value of the JSONObject
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public void setValue(String s) {
-        if (type != 'D' && type != 'U')
+        if (type == 'M' || type == 'A')
             throw new JSONException("Error: cannot assign value of type 'S' to JSONObject of type '" + type + "'");
         value = new String(s);
         type = 'S';
     }
 
+    /**
+     * @param b the new value of the JSONObject
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public void setValue(boolean b) {
-        if (type != 'D' && type != 'U')
+        if (type == 'M' || type == 'A')
             throw new JSONException("Error: cannot assign value of type 'B' to JSONObject of type '" + type + "'");
         value = Boolean.valueOf(b);
         type = 'B';
     }
 
+    /**
+     * Sets the value of the JSONObject to null
+     * 
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public void setNull() {
-        if (type != 'D' && type != 'U')
+        if (type == 'M' || type == 'A')
             throw new JSONException("Error: cannot assign value of type 'N' to JSONObject of type '" + type + "'");
         value = null;
         type = 'N';
     }
 
+    /**
+     * @return the value of the JSONObject
+     * @throws JSONException if the JSONObject is of type 'A' or 'M'
+     */
     public Object getValue() {
+        if (type == 'M' || type == 'A')
+            throw new JSONException("Error: cannot get value of JSONObject of type " + type + "");
         return value;
     }
 
+    /**
+     * @return the value of the JSONObject as an int
+     * @throws JSONException if the JSONObject is not of type 'I'
+     */
     public int getInt() {
         if (type != 'I')
             throw new JSONException("Error: invalid type '" + type + "', expected 'I'");
         return ((Integer) value).intValue();
     }
 
+    /**
+     * @return the value of the JSONObject as an double
+     * @throws JSONException if the JSONObject is not of type 'D'
+     */
     public double getDouble() {
         if (type != 'D')
             throw new JSONException("Error: invalid type '" + type + "', expected 'D'");
         return ((Double) value).doubleValue();
     }
 
+    /**
+     * @return the value of the JSONObject as a string
+     * @throws JSONException if the JSONObject is not of type 'S'
+     */
     public String getString() {
         if (type != 'S')
             throw new JSONException("Error: invalid type '" + type + "', expected 'S'");
         return (String) value;
     }
 
+    /**
+     * @return the value of the JSONObject as a boolean
+     * @throws JSONException if the JSONObject is not of type 'B'
+     */
     public boolean getBoolean() {
-        if (type != 'D')
+        if (type != 'B')
             throw new JSONException("Error: invalid type '" + type + "', expected 'B'");
         return ((Boolean) value).booleanValue();
     }
 
+    /**
+     * @return the type of the JSONObject
+     */
     public char getType() {
         return type;
     }
 
+    /**
+     * @return whether the JSONObject is empty
+     * @throws JSONException if the JSONObject is not of type 'A' or 'M'
+     */
     public boolean isEmpty() {
         if (type == 'A' || type == 'M')
             return values.isEmpty();
         throw new JSONException("Error: method 'isEmpty()' is not to be used with JSONObjects of type '" + type + "'");
     }
 
+    /**
+     * Parses the given string into a new JSONObject
+     * 
+     * @param string the JSON string to parse into a JSONObject
+     * @return the parsed JSONObject
+     * @throws JSONException if the string is blank or not a proper JSON string in
+     *                       any way
+     */
     public static JSONObject parseString(String string) {
+        if (string.isBlank())
+            throw new JSONException("Error: the given string is blank");
         JSONObject currentContainer = new JSONObject();
         Stack<JSONObject> containerStack = new Stack<JSONObject>();
         containerStack.push(currentContainer);
@@ -304,40 +424,96 @@ public class JSONObject {
         return currentContainer;
     }
 
-    public Iterator<String> keys() {
-        if (type == 'M')
-            return keys.iterator();
-        throw new JSONException("Error: key iterator not available for JSONObject of type '" + type + "'");
+    /**
+     * @return an iterator of names in the JSONObject
+     * @throws JSONException if the JSONObject is not of type 'M'
+     */
+    public Iterator<String> names() {
+        if (type != 'M')
+            throw new JSONException("Error: name iterator not available for JSONObject of type '" + type + "'");
+        return names.iterator();
     }
 
+    /**
+     * @return an iterator of the values in the JSONObject
+     * @throws JSONException if the JSONObject is not of type 'A' or 'M'
+     */
     public Iterator<JSONObject> values() {
-        if (type == 'A' || type == 'M')
-            return values.iterator();
-        throw new JSONException("Error: key iterator not available for JSONObject of type '" + type + "'");
-
+        if (type != 'A' && type != 'M')
+            throw new JSONException("Error: name iterator not available for JSONObject of type '" + type + "'");
+        return values.iterator();
     }
 
+    /**
+     * @return an iterator of the name\value pairs in the JSONObject
+     * @throws JSONException if the JSONObject is not of type 'M'
+     */
+    public Iterator<Map.Entry<String, JSONObject>> entries() {
+        if (type != 'M')
+            throw new JSONException("Error: entry iterator not available for JSONObject of type '" + type + "'");
+        Iterator<Map.Entry<String, JSONObject>> it = new Iterator<Map.Entry<String, JSONObject>>() {
+            static int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < names.size();
+            }
+
+            @Override
+            public Map.Entry<String, JSONObject> next() {
+                return new Map.Entry<String, JSONObject>() {
+                    int i = index++;
+
+                    @Override
+                    public String getKey() {
+                        return names.get(i);
+                    }
+
+                    @Override
+                    public JSONObject setValue(JSONObject obj) {
+                        JSONObject ret = values.get(i);
+                        values.set(i, obj);
+                        return ret;
+                    }
+
+                    @Override
+                    public JSONObject getValue() {
+                        return values.get(i);
+                    }
+                };
+            }
+        };
+
+        return it;
+    }
+
+    /**
+     * Creates the JSONObjects string notation
+     * 
+     * @return the string notation
+     * @throws JSONException if it encounters an invalid JSONObject type
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder("");
         switch (type) {
-            case 'I': /// integer
+            case 'I':
                 sb.append((Integer) value);
                 break;
-            case 'D': /// double
+            case 'D':
                 sb.append((Double) value);
                 break;
-            case 'S': /// string
+            case 'S':
                 sb.append('"');
                 sb.append((String) value);
                 sb.append('"');
                 break;
-            case 'B': /// boolean
+            case 'B':
                 sb.append((Boolean) value);
                 break;
-            case 'N': /// NULL
+            case 'N':
                 sb.append("NULL");
                 break;
-            case 'A': /// array
+            case 'A':
                 sb.append('[');
                 for (JSONObject obj : values) {
                     sb.append(obj.toString());
@@ -347,11 +523,11 @@ public class JSONObject {
                     sb.deleteCharAt(sb.length() - 1);
                 sb.append(']');
                 break;
-            case 'M': /// map
+            case 'M':
                 sb.append('{');
-                for (int i = 0; i < keys.size(); i++) {
+                for (int i = 0; i < names.size(); i++) {
                     sb.append('"');
-                    sb.append(keys.get(i));
+                    sb.append(names.get(i));
                     sb.append("\":");
                     sb.append(values.get(i).toString());
                     sb.append(',');
@@ -361,12 +537,20 @@ public class JSONObject {
                 sb.append('}');
                 break;
             default:
-                System.err.println("Invalid type: '" + type + "'...");
-                break;
+                throw new JSONException("Error: invalid JSONObjecttype '" + type + "' encountered");
         }
         return sb.toString();
     }
 
+    /**
+     * Adds a value to the JSONObject, meant to be used on objects of type 'A'
+     * special case when used on objects of type 'M', it will set the last
+     * name\value pairs value, this is used in {@link JSONObject#parseString(String)
+     * parseString}
+     * 
+     * @param value the value to add to the JSONObject
+     * @throws JSONException if the JSONObject is not of type 'A', 'M'
+     */
     public void add(JSONObject value) {
         if (type != 'A' && type != 'M' && type != 'U') /// it is not an array or NULL
             throw new JSONException("Error: JSONObject is not of type array");
@@ -381,67 +565,133 @@ public class JSONObject {
             values.set(values.size() - 1, value);
     }
 
+    /**
+     * @param i the integer to add to the JSONObject
+     * @see JSONObject#add(JSONObject)
+     */
     public void add(int i) {
         add(new JSONObject(i));
     }
 
+    /**
+     * @param d the double to add to the JSONObject
+     * @see JSONObject#add(JSONObject)
+     */
     public void add(double d) {
         add(new JSONObject(d));
     }
 
+    /**
+     * @param s the String to add to the JSONObject
+     * @see JSONObject#add(JSONObject)
+     */
     public void add(String s) {
         add(new JSONObject(s));
     }
 
+    /**
+     * @param b the boolean to add to the JSONObject
+     * @see JSONObject#add(JSONObject)
+     */
     public void add(boolean b) {
         add(new JSONObject(b));
     }
 
-    public void add(String key, JSONObject value) {
+    /**
+     * adds a null value to the JSONObject
+     * 
+     * @see JSONObject#add(JSONObject)
+     */
+    public void addNull() {
+        add(nullObject());
+    }
+
+    /**
+     * @param name  the name of the name/value pair
+     * @param value the value of the name/value pair
+     * @throws JSONException if the JSONObject is not of type 'M'
+     */
+    public void add(String name, JSONObject value) {
         if (type != 'M' && type != 'U')
             throw new JSONException("Error: JSONObject is not of type map...");
 
         if (type == 'U')
             type = 'M';
-        if (keys == null)
-            keys = new ArrayList<String>();
+        if (names == null)
+            names = new ArrayList<String>();
         if (values == null)
             values = new ArrayList<JSONObject>();
-        keys.add(key);
+        names.add(name);
         values.add(value);
     }
 
-    public void add(String key, int i) {
-        add(key, new JSONObject(i));
+    /**
+     * @param name the name of the name/value pair
+     * @param i    the integer value of the name/value pair
+     * @see JSONObject#add(String, JSONObject)
+     */
+    public void add(String name, int i) {
+        add(name, new JSONObject(i));
     }
 
-    public void add(String key, double d) {
-        add(key, new JSONObject(d));
+    /**
+     * @param name the name of the name/value pair
+     * @param d    the double value of the name/value pair
+     * @see JSONObject#add(String, JSONObject)
+     */
+    public void add(String name, double d) {
+        add(name, new JSONObject(d));
     }
 
-    public void add(String key, String s) {
-        add(key, new JSONObject(s));
+    /**
+     * @param name the name of the name/value pair
+     * @param s    the String value of the name/value pair
+     * @see JSONObject#add(String, JSONObject)
+     */
+    public void add(String name, String s) {
+        add(name, new JSONObject(s));
     }
 
-    public void add(String key, boolean b) {
-        add(key, new JSONObject(b));
+    /**
+     * @param name the name of the name/value pair
+     * @param b    the boolean value of the name/value pair
+     * @see JSONObject#add(String, JSONObject)
+     */
+    public void add(String name, boolean b) {
+        add(name, new JSONObject(b));
     }
 
-    public void addNull(String key) {
+    /**
+     * Adds a name/value pair with null value to the JSONObject
+     * 
+     * @param name the name of the name/value pair
+     * @see JSONObject#add(String, JSONObject)
+     */
+    public void addNull(String name) {
         JSONObject obj = new JSONObject();
         obj.setNull();
-        add(key, obj);
+        add(name, obj);
     }
 
-    public JSONObject get(String key) {
+    /**
+     * @param name the name whose value to return
+     * @return the value associated with the provided name
+     * @throws JSONException if the JSONObject is not of type 'M'
+     */
+    public JSONObject get(String name) {
         if (type != 'M')
             throw new JSONException("Error: JSONObject is not of type map...");
-        int index = keys.indexOf(key);
+        int index = names.indexOf(name);
         if (index == -1)
             return null;
         return values.get(index);
     }
 
+    /**
+     * @param index the index of the JSONObject to return
+     * @return the value at the provided index
+     * @throws JSONException if the JSONObject is not of type 'A'
+     */
     public JSONObject get(int index) {
         if (type != 'A')
             throw new JSONException("Error: JSONObject is not of type map...");

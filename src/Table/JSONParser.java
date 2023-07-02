@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Iterator;
-import JSON.JSONObject;
+import JSOpeN.JSONObject;
 
 public class JSONParser extends Parser {
     @Override
@@ -54,9 +54,9 @@ public class JSONParser extends Parser {
         try {
             String data = Files.readString(Path.of(filename));
             JSONObject obj = JSONObject.parseString(data).get("table");
-            Iterator<String> keys = obj.keys();
-            while (keys.hasNext()) {
-                String sheetName = keys.next();
+            Iterator<String> names = obj.names();
+            while (names.hasNext()) {
+                String sheetName = names.next();
                 Iterator<JSONObject> cells = obj.get(sheetName).values();
                 while (cells.hasNext()) {
                     JSONObject cell = cells.next();

@@ -1,4 +1,4 @@
-package JSON;
+package JSOpeN;
 
 public class JSONException extends RuntimeException {
     public JSONException(String errorMSG) {
