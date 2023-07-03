@@ -1,22 +1,26 @@
+_=$() $()
 SRCDIR = src
-BINDIR = bin
+LIBDIR = lib
 SRC = $(wildcard $(SRCDIR)/**/*.java)
-BIN = $(patsubst $(SRCDIR)/%.java, $(BINDIR)/%.class, $(SRC))
+LIB = $(wildcard $(LIBDIR)/*.jar)
+BIN = $(patsubst $(SRCDIR)/%.java, ./%.class, $(SRC))
+JFLAGS = -cp "$(subst $(_),:,$(LIB)):."
+
 PROGRAM = Table.Table
 NAME = OSCalc.jar
 MANIFEST = manifest.txt
-IMGDIR = images
+ICON = images/icon.png
 
 build: $(BIN)
 
 run: build
-	(cd $(BINDIR) && java $(PROGRAM))
+	java $(JFLAGS) $(PROGRAM)
 
 $(BIN) : $(SRC)
-	javac -d $(BINDIR) $(SRCDIR)/**/*.java
+	javac $(JFLAGS) -d . $(SRCDIR)/**/*.java
 
 jar: build $(MANIFEST) 
-	jar cmf $(MANIFEST) $(NAME) $(BINDIR)/** $(IMGDIR)/**
+	jar cmf $(MANIFEST) $(NAME) $(BIN) $(ICON) $(LIB)
 
 $(MANIFEST):
 	@echo "Manifest-Version: 1.0" > $(MANIFEST)
@@ -25,8 +29,8 @@ $(MANIFEST):
 	@echo "" >> $(MANIFEST)
 
 clean:
-	rm -f $(BINDIR)/**/*.class
-	rm -f $(BINDIR)/**/*.csv
-	rm -f $(BINDIR)/**/*.json
+	rm -f ./***.class
+	rm -f ./*.csv
+	rm -f ./*.json
 	rm -f $(NAME)
 	rm -f manifext.txt
