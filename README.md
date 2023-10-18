@@ -1,9 +1,5 @@
 ![Logo][logo]
-[![Language][language-shield]](https://www.java.com/) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstcksmsh%2FOSCalc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstcksmsh%2FOSCalc?ref=badge_shield)
-  ![LineCount][lineCount-shield]   [![Linkedin][linkedin-shield]](https://www.linkedin.com/in/kostavukicevic/)   [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]](http://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstcksmsh%2FOSCalc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstcksmsh%2FOSCalc?ref=badge_large)
+[![Language][language-shield]](https://www.java.com/)   ![LineCount][lineCount-shield]   [![Linkedin][linkedin-shield]](https://www.linkedin.com/in/kostavukicevic/)   [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Open source spreadsheet program made with Java AWT
 
